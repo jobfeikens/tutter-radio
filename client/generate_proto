@@ -1,0 +1,2 @@
+#!/bin/bash
+protoc -I=../protos/ --dart_out=./lib/generated ../protos/message.proto

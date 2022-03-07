@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+message Message {
+  oneof type {
+    HeartBeat heart_beat = 1;
+    Paused paused = 2;
+    Resumed resumed = 3;
+    Listeners listeners = 4;
+  }
+}
+
+message HeartBeat {
+}
+
+message Paused {
+}
+
+message Resumed {
+}
+
+message Listeners {
+  uint64 listeners = 1;
+}

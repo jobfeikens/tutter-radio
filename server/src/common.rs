@@ -4,16 +4,26 @@ use std::error::Error;
 
 pub type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
-#[async_trait]
-pub trait Song {
-    async fn load(&self) -> Result<Box<dyn AsyncRead>>;
+
+
+#[derive(Clone, Debug)]
+pub struct Metadata {
+    title: String,
+    artist: Option<String>,
+    art: Option<Vec<u8>>,
 }
 
-pub trait Playlist {
-    fn get_songs(&self) -> Vec<Box<dyn Song>>;
+#[derive(Clone, Debug)]
+pub struct Playlist {
+    pub name: String,
+    pub len: usize,
 }
 
 #[async_trait]
 pub trait MusicSource {
-    async fn load_playlists(&mut self) -> Result<Vec<Box<dyn Playlist>>>;
+    async fn load_playlists(&mut self) -> Result<Vec<Playlist>>;
+
+    async fn load_song(&mut self, playlist: &str, index: &usize) -> Result<()>;
 }
+
+

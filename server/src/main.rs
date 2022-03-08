@@ -6,7 +6,7 @@ mod util;
 mod convert;
 mod generated;
 
-use crate::common::{Playlist, Song};
+use crate::common::{Playlist};
 use crate::local::source::LocalSource;
 use crate::player::{Player, PlayerEvent};
 use crate::util::byte_buffer::ByteBuffer;
@@ -47,7 +47,7 @@ async fn main() -> Result<()> {
 
     try_join!(
         server.run(),
-        player.run(),
+        //player.run(),
     )?;
     unreachable!()
 }
@@ -120,12 +120,12 @@ async fn receive_connection(
 
         let message = pb::Message::parse_from_bytes(&bytes.into_data())?;
 
-        if message.has_paused() {
-            player.pause().await;
-
-        } else if message.has_resumed() {
-            player.resume().await;
-        }
+        // if message.has_paused() {
+        //     player.pause().await;
+        //
+        // } else if message.has_resumed() {
+        //     player.resume().await;
+        // }
     }
     // End of stream
     Ok(())

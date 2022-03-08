@@ -1,0 +1,2 @@
+#!/bin/sh
+protoc -I ../protos/ --rust_out ./src/generated ../protos/message.proto

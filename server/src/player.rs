@@ -1,3 +1,6 @@
+use crate::common::{Metadata, MusicSource};
+use crate::Playlist;
+use anyhow::Result;
 use async_std::channel::{bounded, Receiver, Sender};
 use async_std::stream::interval;
 use async_std::sync::{Condvar, Mutex, MutexGuard};
@@ -5,24 +8,26 @@ use async_std::task;
 use async_trait::async_trait;
 use futures::{try_join, StreamExt};
 use std::error::Error;
+use std::future::Future;
 use std::sync::Arc;
 use std::thread::sleep;
 use std::time::Duration;
-use anyhow::Result;
-
-struct Metadata {}
 
 #[derive(Clone, Debug)]
 pub enum PlayerEvent {
     HeartBeat,
-    Paused,
-    Resumed,
+    PlayPause(bool), // true is paused
     Listeners(usize),
+    PlaylistUpdate(String, bool), // name, selected
+    Metadata(Metadata),
+    Ready,
 }
 
 pub struct State {
     paused: bool,
     senders: Vec<Sender<PlayerEvent>>,
+    metadata: Option<Metadata>,
+    playlists: Vec<(Playlist, bool)>,
 }
 
 impl State {
@@ -36,6 +41,8 @@ impl Default for State {
         State {
             paused: true,
             senders: Default::default(),
+            playlists: Default::default(),
+            metadata: None,
         }
     }
 }
@@ -51,60 +58,74 @@ impl Player {
         }
     }
 
-    pub async fn run(&self) -> Result<()> {
-        try_join!(
-            self.send_1(),
-            //self.send_heartbeats()
-        )?;
+    pub async fn run(&self, source: Box<dyn MusicSource>) -> Result<()> {
+        try_join!(self.play_songs(source), self.send_heartbeats())?;
         unreachable!()
     }
 
-    async fn send_1(&self) -> Result<()> {
-        let mut interval = interval(Duration::from_millis(1000));
+    async fn play_songs(&self, source: Box<dyn MusicSource>) -> Result<()> {
+        let mut interval = interval(Duration::from_millis(20));
 
         loop {
             self.use_state_if(
-                // Only play music if there are listeners
-                |state| state.listeners() > 0,
+                |state| state.listeners() > 0 && !state.paused,
                 |mut state| {
                     send_event(&mut state.senders, PlayerEvent::HeartBeat);
+                    state.metadata.is_some()
                 },
             )
             .await;
-
             interval.next().await;
         }
     }
 
     async fn send_heartbeats(&self) -> Result<()> {
-        let mut interval = interval(Duration::from_millis(20));
+        let mut interval = interval(Duration::from_secs(1));
         loop {
             self.use_state(|mut state| {
-                //send_to_all(&mut state.senders, PlayerEvent::HeartBeat);
+                send_event(&mut state.senders, PlayerEvent::HeartBeat);
             })
             .await;
-
             interval.next().await.unwrap();
         }
     }
 
-    pub async fn pause(&self) {
+    pub async fn play_pause(&self, paused: &bool) {
         self.use_state(|mut state| {
-            if !state.paused {
-                state.paused = true;
-                send_event(&mut state.senders, PlayerEvent::Paused);
-                log::info!("Player paused");
+            if *paused != state.paused {
+                state.paused = *paused;
+                send_event(&mut state.senders, PlayerEvent::PlayPause(*paused));
+                if *paused {
+                    log::info!("Paused");
+                } else {
+                    log::info!("Resumed");
+                }
             }
         })
-        .await;
+        .await
     }
 
-    pub async fn resume(&self) {
+    pub async fn select_playlist(&self, name: &str, selected: &bool) {
         self.use_state(|mut state| {
-            if state.paused {
-                state.paused = false;
-                send_event(&mut state.senders, PlayerEvent::Resumed);
-                log::info!("Player resumed");
+            let mut playlist = state
+                .playlists
+                .iter_mut()
+                .find(|(playlist, _)| playlist.name == name);
+
+            if let Some((_, s)) = playlist {
+                if s != selected {
+                    *s = *selected;
+
+                    send_event(
+                        &mut state.senders,
+                        PlayerEvent::PlaylistUpdate(name.to_string(), *selected),
+                    );
+                    if *selected {
+                        log::info!("Playlist {} selected", name)
+                    } else {
+                        log::info!("Playlist {} deselected", name)
+                    }
+                }
             }
         })
         .await;
@@ -114,17 +135,35 @@ impl Player {
         self.use_state(|mut state| {
             let (sender, receiver) = bounded(100);
 
-            // Send initial values to new receiver
-            if state.paused {
-                sender.try_send(PlayerEvent::Paused).unwrap();
-            } else {
-                sender.try_send(PlayerEvent::Resumed).unwrap();
-            }
-            state.senders.push(sender);
+            let listeners = state.listeners() + 1;
 
-            // Send number of listeners to everyone
-            let listeners = state.listeners();
+            // Send initial values to new receiver
+            sender
+                .try_send(PlayerEvent::PlayPause(state.paused))
+                .unwrap();
+            sender.try_send(PlayerEvent::Listeners(listeners)).unwrap();
+
+            for (playlist, selected) in &state.playlists {
+                sender
+                    .try_send(PlayerEvent::PlaylistUpdate(
+                        playlist.name.clone(),
+                        *selected,
+                    ))
+                    .unwrap();
+            }
+
+            if let Some(metadata) = &state.metadata {
+                sender
+                    .try_send(PlayerEvent::Metadata(metadata.clone()))
+                    .unwrap();
+            }
+
+            sender.try_send(PlayerEvent::Ready).unwrap();
+
+            // Send number of listeners to everyone else
+            state.senders.push(sender);
             send_event(&mut state.senders, PlayerEvent::Listeners(listeners));
+
             receiver
         })
         .await
@@ -164,7 +203,7 @@ fn send_event(senders: &mut Vec<Sender<PlayerEvent>>, event: PlayerEvent) {
     send_retain(senders, event);
 
     // If any number of senders disconnected
-    while len > senders.len() {
+    while senders.len() < len {
         len = senders.len();
         send_retain(senders, PlayerEvent::Listeners(len))
     }

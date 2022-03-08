@@ -3,21 +3,22 @@ syntax = "proto3";
 message Message {
   oneof type {
     HeartBeat heart_beat = 1;
-    Paused paused = 2;
-    Resumed resumed = 3;
-    Listeners listeners = 4;
+    PlayPause play_pause = 2;
+    Listeners listeners = 3;
+    Ready ready = 4;
   }
 }
 
 message HeartBeat {
 }
 
-message Paused {
-}
-
-message Resumed {
+message PlayPause {
+  bool isPaused = 1;
 }
 
 message Listeners {
   uint64 listeners = 1;
+}
+
+message Ready {
 }

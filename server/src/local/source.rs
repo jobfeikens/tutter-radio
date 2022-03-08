@@ -1,9 +1,11 @@
-use crate::common::{MusicSource, Playlist, Result, Song};
+use std::ffi::{OsStr, OsString};
+use crate::common::{MusicSource, Playlist, Result};
 use async_trait::async_trait;
 use futures::{AsyncRead, TryFutureExt};
 use std::path::Path;
-use tokio::fs;
-use tokio::fs::DirEntry;
+use async_std::fs;
+use crate::StreamExt;
+
 
 pub struct LocalSource {
     path: String,
@@ -19,35 +21,39 @@ impl LocalSource {
 
 #[async_trait]
 impl MusicSource for LocalSource {
-    async fn load_playlists(&mut self) -> Result<Vec<Box<dyn Playlist>>> {
-        let mut playlists = Vec::new();
-        //
-        // let mut files = fs::read_dir(&self.path).await?;
-        //
-        // while let Some(entry) = files.next_entry().await? {
-        //     if entry.metadata().await?.is_dir() {
-        //         playlists.push(Box::new(LocalPlaylist { entry }))
-        //     }
-        // }
+    async fn load_playlists(&mut self) -> Result<Vec<Playlist>> {
+        let playlists = Vec::new();
+
+        let mut paths = fs::read_dir("./").await?;
+
+        while let Some(result) = paths.next().await {
+            let entry = result?;
+
+            if entry.metadata().await?.is_dir() {
+
+
+            }
+        }
         Ok(playlists)
     }
-}
 
-pub struct LocalPlaylist {
-    entry: DirEntry,
-}
-
-impl Playlist for LocalPlaylist {
-    fn get_songs(&self) -> Vec<Box<dyn Song>> {
+    async fn load_song(&mut self, playlist: &str, index: &usize) -> Result<()> {
         todo!()
     }
 }
 
-pub struct LocalSong {}
-
-#[async_trait]
-impl Song for LocalSong {
-    async fn load(&self) -> Result<Box<dyn AsyncRead>> {
-        todo!()
-    }
+fn get_string(s: OsString) -> String {
+    s.into_string().unwrap_or("".to_string())
 }
+
+//
+// #[async_trait]
+// impl MusicSource for LocalSource {
+//     async fn load_playlists(&mut self) -> Result<Vec<Playlist>> {
+//         todo!()
+//     }
+//
+//     async fn load_song(&mut self, playlist: &str, index: &usize) -> Result {
+//         todo!()
+//     }
+// }

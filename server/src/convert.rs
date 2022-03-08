@@ -9,11 +9,11 @@ pub fn convert_event(event: PlayerEvent) -> pb::Message {
         PlayerEvent::HeartBeat => {
             message.set_heart_beat(pb::HeartBeat::default());
         }
-        PlayerEvent::Paused => {
-            message.set_paused(pb::Paused::default());
-        }
-        PlayerEvent::Resumed => {
-            message.set_resumed(pb::Resumed::default());
+        PlayerEvent::PlayPause(paused) => {
+            let mut p = pb::PlayPause::new();
+            p.set_isPaused(paused);
+
+            message.set_play_pause(p);
         }
         PlayerEvent::Listeners(listeners) => {
             let mut p = pb::Listeners::new();
@@ -21,6 +21,10 @@ pub fn convert_event(event: PlayerEvent) -> pb::Message {
 
             message.set_listeners(p);
         }
+        PlayerEvent::Ready => {
+            message.set_ready(pb::Ready::default());
+        }
+        _ => todo!()
     };
     message
 }

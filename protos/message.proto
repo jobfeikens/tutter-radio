@@ -1,11 +1,22 @@
 syntax = "proto3";
 
-message Message {
+message ServerBound {
+  oneof type {
+    PlayPause play_pause = 1;
+    SelectPlaylist select_playlist = 2;
+  }
+}
+
+message ClientBound {
   oneof type {
     HeartBeat heart_beat = 1;
     PlayPause play_pause = 2;
     Listeners listeners = 3;
-    Ready ready = 4;
+    ClearPlaylists clear_playlists = 4;
+    AddPlaylist add_playlist = 5;
+    SelectPlaylist select_playlist = 6;
+    Ready ready = 7;
+    OpusFrame opus_frame = 8;
   }
 }
 
@@ -13,12 +24,28 @@ message HeartBeat {
 }
 
 message PlayPause {
-  bool isPaused = 1;
+  bool is_paused = 1;
 }
 
 message Listeners {
-  uint64 listeners = 1;
+  uint64 count = 1;
 }
 
 message Ready {
+}
+
+message ClearPlaylists {}
+
+message AddPlaylist {
+  string name = 1;
+  uint64 length = 2;
+}
+
+message SelectPlaylist {
+  uint64 index = 1;
+  bool selected = 2;
+}
+
+message OpusFrame {
+  bytes data = 1;
 }

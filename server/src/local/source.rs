@@ -1,9 +1,10 @@
 use std::ffi::{OsStr, OsString};
 use crate::common::{MusicSource, Playlist, Result};
 use async_trait::async_trait;
-use futures::{AsyncRead, TryFutureExt};
+use futures::{TryFutureExt};
 use std::path::Path;
 use async_std::fs;
+use tokio::io::AsyncRead;
 use crate::StreamExt;
 
 
@@ -22,38 +23,26 @@ impl LocalSource {
 #[async_trait]
 impl MusicSource for LocalSource {
     async fn load_playlists(&mut self) -> Result<Vec<Playlist>> {
-        let playlists = Vec::new();
+        let mut playlists = Vec::new();
 
-        let mut paths = fs::read_dir("./").await?;
+        let mut directories = fs::read_dir(&self.path).await?;
+        while let Some(result) = directories.next().await {
+            let directory = result?;
 
-        while let Some(result) = paths.next().await {
-            let entry = result?;
+            let name = get_string(directory.file_name());
+            let len = fs::read_dir(directory.path()).await?.count().await;
 
-            if entry.metadata().await?.is_dir() {
-
-
-            }
+            playlists.push(Playlist { name, len })
         }
         Ok(playlists)
     }
 
-    async fn load_song(&mut self, playlist: &str, index: &usize) -> Result<()> {
-        todo!()
+    async fn load_song(&mut self, playlist: &str, index: &usize) -> Result<Box<dyn AsyncRead + Unpin>> {
+        let x = tokio::fs::File::open("/home/job/Music/tuttermusic/tutter1/test.opus").await?;
+        Ok(Box::new(x))
     }
 }
 
 fn get_string(s: OsString) -> String {
     s.into_string().unwrap_or("".to_string())
 }
-
-//
-// #[async_trait]
-// impl MusicSource for LocalSource {
-//     async fn load_playlists(&mut self) -> Result<Vec<Playlist>> {
-//         todo!()
-//     }
-//
-//     async fn load_song(&mut self, playlist: &str, index: &usize) -> Result {
-//         todo!()
-//     }
-// }

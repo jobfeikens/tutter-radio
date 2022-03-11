@@ -21,12 +21,19 @@ use std::sync::{Arc, Mutex};
 use std::{env, error::Error, fmt};
 use futures::stream::{SplitSink, SplitStream};
 use generated::message as pb;
-use protobuf::{Message};
+use protobuf::Message as PbMessage;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::{TcpListener, TcpStream};
 use tokio::time::Duration;
-use tokio_tungstenite::tungstenite::protocol::frame::coding::Data::Binary;
-use tokio_tungstenite::{tungstenite, WebSocketStream};
+
+use tokio_tungstenite::{
+    tungstenite,
+    tungstenite::{
+        Message::Binary
+    },
+    WebSocketStream
+};
+
 use crate::convert::convert_event;
 use anyhow::Result;
 
@@ -36,7 +43,7 @@ async fn main() -> Result<()> {
 
     let addr = env::args()
         .nth(1)
-        .unwrap_or_else(|| "127.0.0.1:8080".to_string());
+        .unwrap_or_else(|| "0.0.0.0:8080".to_string());
 
     let player = Arc::new(Player::new());
 
@@ -45,9 +52,11 @@ async fn main() -> Result<()> {
         player: player.clone(),
     };
 
+    let source = LocalSource::new("/home/job/Music/tuttermusic");
+
     try_join!(
         server.run(),
-        //player.run(),
+        player.run(Box::new(source)),
     )?;
     unreachable!()
 }
@@ -63,7 +72,7 @@ impl Server {
             let (stream, address) = self.listener.accept().await?;
             log::info!("New connection: {}", address);
 
-            self.accept_connection(stream).await;
+            self.accept_connection(stream).await?;
         }
     }
 
@@ -92,7 +101,7 @@ async fn run_connection(
 ) {
     let (sink, stream) = stream.split();
 
-    try_join!(
+    let result = try_join!(
         send_connection(sink, player.clone()),
         receive_connection(stream, player.clone()),
     );
@@ -103,11 +112,11 @@ async fn send_connection(
     player: Arc<Player>
 ) -> Result<()> {
     let receiver = player.observe().await;
+
     loop {
         let event = convert_event(receiver.recv().await?);
         let bytes = event.write_to_bytes()?;
-
-        stream.send(tungstenite::Message::binary(bytes)).await?;
+        stream.send(Binary(bytes)).await?;
     }
 }
 
@@ -118,15 +127,20 @@ async fn receive_connection(
     while let Some(data) = stream.next().await {
         let bytes = data?;
 
-        let message = pb::Message::parse_from_bytes(&bytes.into_data())?;
+        let message = pb::ServerBound::parse_from_bytes(&bytes.into_data())?;
 
-        // if message.has_paused() {
-        //     player.pause().await;
-        //
-        // } else if message.has_resumed() {
-        //     player.resume().await;
-        // }
+
+        if message.has_play_pause() {
+            player.play_pause(message.get_play_pause().is_paused).await;
+        }
+
+        else if message.has_select_playlist() {
+            let select = message.get_select_playlist();
+
+            player.select_playlist(select.index as usize, select.selected).await;
+        }
     }
+    log::info!("End of stream");
     // End of stream
     Ok(())
 }

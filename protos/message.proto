@@ -16,7 +16,8 @@ message ClientBound {
     AddPlaylist add_playlist = 5;
     SelectPlaylist select_playlist = 6;
     Ready ready = 7;
-    OpusFrame opus_frame = 8;
+    Comment comment = 8;
+    OpusData data = 9;
   }
 }
 
@@ -44,6 +45,21 @@ message AddPlaylist {
 message SelectPlaylist {
   uint64 index = 1;
   bool selected = 2;
+}
+
+message Comment {
+  bool noComment = 1;
+  repeated CommentEntry entries = 2;
+}
+
+message CommentEntry {
+  string key = 1;
+  string value = 2;
+}
+
+message OpusData {
+  bytes data = 1;
+  uint32 duration = 2;
 }
 
 message OpusFrame {

@@ -1,6 +1,6 @@
 {
-    "name": "potter_music_client",
-    "short_name": "potter_music_client",
+    "name": "Tutter radio",
+    "short_name": "Tutter radio",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

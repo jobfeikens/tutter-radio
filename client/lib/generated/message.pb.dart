@@ -10,75 +10,190 @@ import 'dart:core' as $core;
 import 'package:fixnum/fixnum.dart' as $fixnum;
 import 'package:protobuf/protobuf.dart' as $pb;
 
-enum Message_Type {
-  heartBeat, 
-  paused, 
-  resumed, 
-  listeners, 
+enum ServerBound_Type {
+  playPause, 
+  selectPlaylist, 
   notSet
 }
 
-class Message extends $pb.GeneratedMessage {
-  static const $core.Map<$core.int, Message_Type> _Message_TypeByTag = {
-    1 : Message_Type.heartBeat,
-    2 : Message_Type.paused,
-    3 : Message_Type.resumed,
-    4 : Message_Type.listeners,
-    0 : Message_Type.notSet
+class ServerBound extends $pb.GeneratedMessage {
+  static const $core.Map<$core.int, ServerBound_Type> _ServerBound_TypeByTag = {
+    1 : ServerBound_Type.playPause,
+    2 : ServerBound_Type.selectPlaylist,
+    0 : ServerBound_Type.notSet
   };
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Message', createEmptyInstance: create)
-    ..oo(0, [1, 2, 3, 4])
-    ..aOM<HeartBeat>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'heartBeat', subBuilder: HeartBeat.create)
-    ..aOM<Paused>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'paused', subBuilder: Paused.create)
-    ..aOM<Resumed>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'resumed', subBuilder: Resumed.create)
-    ..aOM<Listeners>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'listeners', subBuilder: Listeners.create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ServerBound', createEmptyInstance: create)
+    ..oo(0, [1, 2])
+    ..aOM<PlayPause>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'playPause', subBuilder: PlayPause.create)
+    ..aOM<SelectPlaylist>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'selectPlaylist', subBuilder: SelectPlaylist.create)
     ..hasRequiredFields = false
   ;
 
-  Message._() : super();
-  factory Message({
+  ServerBound._() : super();
+  factory ServerBound({
+    PlayPause? playPause,
+    SelectPlaylist? selectPlaylist,
+  }) {
+    final _result = create();
+    if (playPause != null) {
+      _result.playPause = playPause;
+    }
+    if (selectPlaylist != null) {
+      _result.selectPlaylist = selectPlaylist;
+    }
+    return _result;
+  }
+  factory ServerBound.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ServerBound.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ServerBound clone() => ServerBound()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ServerBound copyWith(void Function(ServerBound) updates) => super.copyWith((message) => updates(message as ServerBound)) as ServerBound; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static ServerBound create() => ServerBound._();
+  ServerBound createEmptyInstance() => create();
+  static $pb.PbList<ServerBound> createRepeated() => $pb.PbList<ServerBound>();
+  @$core.pragma('dart2js:noInline')
+  static ServerBound getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ServerBound>(create);
+  static ServerBound? _defaultInstance;
+
+  ServerBound_Type whichType() => _ServerBound_TypeByTag[$_whichOneof(0)]!;
+  void clearType() => clearField($_whichOneof(0));
+
+  @$pb.TagNumber(1)
+  PlayPause get playPause => $_getN(0);
+  @$pb.TagNumber(1)
+  set playPause(PlayPause v) { setField(1, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasPlayPause() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearPlayPause() => clearField(1);
+  @$pb.TagNumber(1)
+  PlayPause ensurePlayPause() => $_ensure(0);
+
+  @$pb.TagNumber(2)
+  SelectPlaylist get selectPlaylist => $_getN(1);
+  @$pb.TagNumber(2)
+  set selectPlaylist(SelectPlaylist v) { setField(2, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasSelectPlaylist() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearSelectPlaylist() => clearField(2);
+  @$pb.TagNumber(2)
+  SelectPlaylist ensureSelectPlaylist() => $_ensure(1);
+}
+
+enum ClientBound_Type {
+  heartBeat, 
+  playPause, 
+  listeners, 
+  clearPlaylists, 
+  addPlaylist, 
+  selectPlaylist, 
+  ready, 
+  comment, 
+  data, 
+  notSet
+}
+
+class ClientBound extends $pb.GeneratedMessage {
+  static const $core.Map<$core.int, ClientBound_Type> _ClientBound_TypeByTag = {
+    1 : ClientBound_Type.heartBeat,
+    2 : ClientBound_Type.playPause,
+    3 : ClientBound_Type.listeners,
+    4 : ClientBound_Type.clearPlaylists,
+    5 : ClientBound_Type.addPlaylist,
+    6 : ClientBound_Type.selectPlaylist,
+    7 : ClientBound_Type.ready,
+    8 : ClientBound_Type.comment,
+    9 : ClientBound_Type.data,
+    0 : ClientBound_Type.notSet
+  };
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ClientBound', createEmptyInstance: create)
+    ..oo(0, [1, 2, 3, 4, 5, 6, 7, 8, 9])
+    ..aOM<HeartBeat>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'heartBeat', subBuilder: HeartBeat.create)
+    ..aOM<PlayPause>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'playPause', subBuilder: PlayPause.create)
+    ..aOM<Listeners>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'listeners', subBuilder: Listeners.create)
+    ..aOM<ClearPlaylists>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'clearPlaylists', subBuilder: ClearPlaylists.create)
+    ..aOM<AddPlaylist>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'addPlaylist', subBuilder: AddPlaylist.create)
+    ..aOM<SelectPlaylist>(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'selectPlaylist', subBuilder: SelectPlaylist.create)
+    ..aOM<Ready>(7, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'ready', subBuilder: Ready.create)
+    ..aOM<Comment>(8, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'comment', subBuilder: Comment.create)
+    ..aOM<OpusData>(9, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data', subBuilder: OpusData.create)
+    ..hasRequiredFields = false
+  ;
+
+  ClientBound._() : super();
+  factory ClientBound({
     HeartBeat? heartBeat,
-    Paused? paused,
-    Resumed? resumed,
+    PlayPause? playPause,
     Listeners? listeners,
+    ClearPlaylists? clearPlaylists,
+    AddPlaylist? addPlaylist,
+    SelectPlaylist? selectPlaylist,
+    Ready? ready,
+    Comment? comment,
+    OpusData? data,
   }) {
     final _result = create();
     if (heartBeat != null) {
       _result.heartBeat = heartBeat;
     }
-    if (paused != null) {
-      _result.paused = paused;
-    }
-    if (resumed != null) {
-      _result.resumed = resumed;
+    if (playPause != null) {
+      _result.playPause = playPause;
     }
     if (listeners != null) {
       _result.listeners = listeners;
     }
+    if (clearPlaylists != null) {
+      _result.clearPlaylists = clearPlaylists;
+    }
+    if (addPlaylist != null) {
+      _result.addPlaylist = addPlaylist;
+    }
+    if (selectPlaylist != null) {
+      _result.selectPlaylist = selectPlaylist;
+    }
+    if (ready != null) {
+      _result.ready = ready;
+    }
+    if (comment != null) {
+      _result.comment = comment;
+    }
+    if (data != null) {
+      _result.data = data;
+    }
     return _result;
   }
-  factory Message.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Message.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory ClientBound.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ClientBound.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  Message clone() => Message()..mergeFromMessage(this);
+  ClientBound clone() => ClientBound()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  Message copyWith(void Function(Message) updates) => super.copyWith((message) => updates(message as Message)) as Message; // ignore: deprecated_member_use
+  ClientBound copyWith(void Function(ClientBound) updates) => super.copyWith((message) => updates(message as ClientBound)) as ClientBound; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static Message create() => Message._();
-  Message createEmptyInstance() => create();
-  static $pb.PbList<Message> createRepeated() => $pb.PbList<Message>();
+  static ClientBound create() => ClientBound._();
+  ClientBound createEmptyInstance() => create();
+  static $pb.PbList<ClientBound> createRepeated() => $pb.PbList<ClientBound>();
   @$core.pragma('dart2js:noInline')
-  static Message getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Message>(create);
-  static Message? _defaultInstance;
+  static ClientBound getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClientBound>(create);
+  static ClientBound? _defaultInstance;
 
-  Message_Type whichType() => _Message_TypeByTag[$_whichOneof(0)]!;
+  ClientBound_Type whichType() => _ClientBound_TypeByTag[$_whichOneof(0)]!;
   void clearType() => clearField($_whichOneof(0));
 
   @$pb.TagNumber(1)
@@ -93,37 +208,92 @@ class Message extends $pb.GeneratedMessage {
   HeartBeat ensureHeartBeat() => $_ensure(0);
 
   @$pb.TagNumber(2)
-  Paused get paused => $_getN(1);
+  PlayPause get playPause => $_getN(1);
   @$pb.TagNumber(2)
-  set paused(Paused v) { setField(2, v); }
+  set playPause(PlayPause v) { setField(2, v); }
   @$pb.TagNumber(2)
-  $core.bool hasPaused() => $_has(1);
+  $core.bool hasPlayPause() => $_has(1);
   @$pb.TagNumber(2)
-  void clearPaused() => clearField(2);
+  void clearPlayPause() => clearField(2);
   @$pb.TagNumber(2)
-  Paused ensurePaused() => $_ensure(1);
+  PlayPause ensurePlayPause() => $_ensure(1);
 
   @$pb.TagNumber(3)
-  Resumed get resumed => $_getN(2);
+  Listeners get listeners => $_getN(2);
   @$pb.TagNumber(3)
-  set resumed(Resumed v) { setField(3, v); }
+  set listeners(Listeners v) { setField(3, v); }
   @$pb.TagNumber(3)
-  $core.bool hasResumed() => $_has(2);
+  $core.bool hasListeners() => $_has(2);
   @$pb.TagNumber(3)
-  void clearResumed() => clearField(3);
+  void clearListeners() => clearField(3);
   @$pb.TagNumber(3)
-  Resumed ensureResumed() => $_ensure(2);
+  Listeners ensureListeners() => $_ensure(2);
 
   @$pb.TagNumber(4)
-  Listeners get listeners => $_getN(3);
+  ClearPlaylists get clearPlaylists => $_getN(3);
   @$pb.TagNumber(4)
-  set listeners(Listeners v) { setField(4, v); }
+  set clearPlaylists(ClearPlaylists v) { setField(4, v); }
   @$pb.TagNumber(4)
-  $core.bool hasListeners() => $_has(3);
+  $core.bool hasClearPlaylists() => $_has(3);
   @$pb.TagNumber(4)
-  void clearListeners() => clearField(4);
+  void clearClearPlaylists() => clearField(4);
   @$pb.TagNumber(4)
-  Listeners ensureListeners() => $_ensure(3);
+  ClearPlaylists ensureClearPlaylists() => $_ensure(3);
+
+  @$pb.TagNumber(5)
+  AddPlaylist get addPlaylist => $_getN(4);
+  @$pb.TagNumber(5)
+  set addPlaylist(AddPlaylist v) { setField(5, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasAddPlaylist() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearAddPlaylist() => clearField(5);
+  @$pb.TagNumber(5)
+  AddPlaylist ensureAddPlaylist() => $_ensure(4);
+
+  @$pb.TagNumber(6)
+  SelectPlaylist get selectPlaylist => $_getN(5);
+  @$pb.TagNumber(6)
+  set selectPlaylist(SelectPlaylist v) { setField(6, v); }
+  @$pb.TagNumber(6)
+  $core.bool hasSelectPlaylist() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearSelectPlaylist() => clearField(6);
+  @$pb.TagNumber(6)
+  SelectPlaylist ensureSelectPlaylist() => $_ensure(5);
+
+  @$pb.TagNumber(7)
+  Ready get ready => $_getN(6);
+  @$pb.TagNumber(7)
+  set ready(Ready v) { setField(7, v); }
+  @$pb.TagNumber(7)
+  $core.bool hasReady() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearReady() => clearField(7);
+  @$pb.TagNumber(7)
+  Ready ensureReady() => $_ensure(6);
+
+  @$pb.TagNumber(8)
+  Comment get comment => $_getN(7);
+  @$pb.TagNumber(8)
+  set comment(Comment v) { setField(8, v); }
+  @$pb.TagNumber(8)
+  $core.bool hasComment() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearComment() => clearField(8);
+  @$pb.TagNumber(8)
+  Comment ensureComment() => $_ensure(7);
+
+  @$pb.TagNumber(9)
+  OpusData get data => $_getN(8);
+  @$pb.TagNumber(9)
+  set data(OpusData v) { setField(9, v); }
+  @$pb.TagNumber(9)
+  $core.bool hasData() => $_has(8);
+  @$pb.TagNumber(9)
+  void clearData() => clearField(9);
+  @$pb.TagNumber(9)
+  OpusData ensureData() => $_ensure(8);
 }
 
 class HeartBeat extends $pb.GeneratedMessage {
@@ -155,77 +325,66 @@ class HeartBeat extends $pb.GeneratedMessage {
   static HeartBeat? _defaultInstance;
 }
 
-class Paused extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Paused', createEmptyInstance: create)
+class PlayPause extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'PlayPause', createEmptyInstance: create)
+    ..aOB(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'isPaused')
     ..hasRequiredFields = false
   ;
 
-  Paused._() : super();
-  factory Paused() => create();
-  factory Paused.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Paused.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  PlayPause._() : super();
+  factory PlayPause({
+    $core.bool? isPaused,
+  }) {
+    final _result = create();
+    if (isPaused != null) {
+      _result.isPaused = isPaused;
+    }
+    return _result;
+  }
+  factory PlayPause.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory PlayPause.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  Paused clone() => Paused()..mergeFromMessage(this);
+  PlayPause clone() => PlayPause()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  Paused copyWith(void Function(Paused) updates) => super.copyWith((message) => updates(message as Paused)) as Paused; // ignore: deprecated_member_use
+  PlayPause copyWith(void Function(PlayPause) updates) => super.copyWith((message) => updates(message as PlayPause)) as PlayPause; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static Paused create() => Paused._();
-  Paused createEmptyInstance() => create();
-  static $pb.PbList<Paused> createRepeated() => $pb.PbList<Paused>();
+  static PlayPause create() => PlayPause._();
+  PlayPause createEmptyInstance() => create();
+  static $pb.PbList<PlayPause> createRepeated() => $pb.PbList<PlayPause>();
   @$core.pragma('dart2js:noInline')
-  static Paused getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Paused>(create);
-  static Paused? _defaultInstance;
-}
+  static PlayPause getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<PlayPause>(create);
+  static PlayPause? _defaultInstance;
 
-class Resumed extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Resumed', createEmptyInstance: create)
-    ..hasRequiredFields = false
-  ;
-
-  Resumed._() : super();
-  factory Resumed() => create();
-  factory Resumed.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Resumed.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
-  Resumed clone() => Resumed()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  Resumed copyWith(void Function(Resumed) updates) => super.copyWith((message) => updates(message as Resumed)) as Resumed; // ignore: deprecated_member_use
-  $pb.BuilderInfo get info_ => _i;
-  @$core.pragma('dart2js:noInline')
-  static Resumed create() => Resumed._();
-  Resumed createEmptyInstance() => create();
-  static $pb.PbList<Resumed> createRepeated() => $pb.PbList<Resumed>();
-  @$core.pragma('dart2js:noInline')
-  static Resumed getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Resumed>(create);
-  static Resumed? _defaultInstance;
+  @$pb.TagNumber(1)
+  $core.bool get isPaused => $_getBF(0);
+  @$pb.TagNumber(1)
+  set isPaused($core.bool v) { $_setBool(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasIsPaused() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearIsPaused() => clearField(1);
 }
 
 class Listeners extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Listeners', createEmptyInstance: create)
-    ..a<$fixnum.Int64>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'listeners', $pb.PbFieldType.OU6, defaultOrMaker: $fixnum.Int64.ZERO)
+    ..a<$fixnum.Int64>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'count', $pb.PbFieldType.OU6, defaultOrMaker: $fixnum.Int64.ZERO)
     ..hasRequiredFields = false
   ;
 
   Listeners._() : super();
   factory Listeners({
-    $fixnum.Int64? listeners,
+    $fixnum.Int64? count,
   }) {
     final _result = create();
-    if (listeners != null) {
-      _result.listeners = listeners;
+    if (count != null) {
+      _result.count = count;
     }
     return _result;
   }
@@ -251,12 +410,416 @@ class Listeners extends $pb.GeneratedMessage {
   static Listeners? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $fixnum.Int64 get listeners => $_getI64(0);
+  $fixnum.Int64 get count => $_getI64(0);
   @$pb.TagNumber(1)
-  set listeners($fixnum.Int64 v) { $_setInt64(0, v); }
+  set count($fixnum.Int64 v) { $_setInt64(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasListeners() => $_has(0);
+  $core.bool hasCount() => $_has(0);
   @$pb.TagNumber(1)
-  void clearListeners() => clearField(1);
+  void clearCount() => clearField(1);
+}
+
+class Ready extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Ready', createEmptyInstance: create)
+    ..hasRequiredFields = false
+  ;
+
+  Ready._() : super();
+  factory Ready() => create();
+  factory Ready.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory Ready.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  Ready clone() => Ready()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  Ready copyWith(void Function(Ready) updates) => super.copyWith((message) => updates(message as Ready)) as Ready; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static Ready create() => Ready._();
+  Ready createEmptyInstance() => create();
+  static $pb.PbList<Ready> createRepeated() => $pb.PbList<Ready>();
+  @$core.pragma('dart2js:noInline')
+  static Ready getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Ready>(create);
+  static Ready? _defaultInstance;
+}
+
+class ClearPlaylists extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ClearPlaylists', createEmptyInstance: create)
+    ..hasRequiredFields = false
+  ;
+
+  ClearPlaylists._() : super();
+  factory ClearPlaylists() => create();
+  factory ClearPlaylists.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ClearPlaylists.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ClearPlaylists clone() => ClearPlaylists()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ClearPlaylists copyWith(void Function(ClearPlaylists) updates) => super.copyWith((message) => updates(message as ClearPlaylists)) as ClearPlaylists; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static ClearPlaylists create() => ClearPlaylists._();
+  ClearPlaylists createEmptyInstance() => create();
+  static $pb.PbList<ClearPlaylists> createRepeated() => $pb.PbList<ClearPlaylists>();
+  @$core.pragma('dart2js:noInline')
+  static ClearPlaylists getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClearPlaylists>(create);
+  static ClearPlaylists? _defaultInstance;
+}
+
+class AddPlaylist extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'AddPlaylist', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
+    ..a<$fixnum.Int64>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'length', $pb.PbFieldType.OU6, defaultOrMaker: $fixnum.Int64.ZERO)
+    ..hasRequiredFields = false
+  ;
+
+  AddPlaylist._() : super();
+  factory AddPlaylist({
+    $core.String? name,
+    $fixnum.Int64? length,
+  }) {
+    final _result = create();
+    if (name != null) {
+      _result.name = name;
+    }
+    if (length != null) {
+      _result.length = length;
+    }
+    return _result;
+  }
+  factory AddPlaylist.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory AddPlaylist.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  AddPlaylist clone() => AddPlaylist()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  AddPlaylist copyWith(void Function(AddPlaylist) updates) => super.copyWith((message) => updates(message as AddPlaylist)) as AddPlaylist; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static AddPlaylist create() => AddPlaylist._();
+  AddPlaylist createEmptyInstance() => create();
+  static $pb.PbList<AddPlaylist> createRepeated() => $pb.PbList<AddPlaylist>();
+  @$core.pragma('dart2js:noInline')
+  static AddPlaylist getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<AddPlaylist>(create);
+  static AddPlaylist? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get name => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set name($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasName() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearName() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $fixnum.Int64 get length => $_getI64(1);
+  @$pb.TagNumber(2)
+  set length($fixnum.Int64 v) { $_setInt64(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasLength() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearLength() => clearField(2);
+}
+
+class SelectPlaylist extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'SelectPlaylist', createEmptyInstance: create)
+    ..a<$fixnum.Int64>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'index', $pb.PbFieldType.OU6, defaultOrMaker: $fixnum.Int64.ZERO)
+    ..aOB(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'selected')
+    ..hasRequiredFields = false
+  ;
+
+  SelectPlaylist._() : super();
+  factory SelectPlaylist({
+    $fixnum.Int64? index,
+    $core.bool? selected,
+  }) {
+    final _result = create();
+    if (index != null) {
+      _result.index = index;
+    }
+    if (selected != null) {
+      _result.selected = selected;
+    }
+    return _result;
+  }
+  factory SelectPlaylist.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory SelectPlaylist.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  SelectPlaylist clone() => SelectPlaylist()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  SelectPlaylist copyWith(void Function(SelectPlaylist) updates) => super.copyWith((message) => updates(message as SelectPlaylist)) as SelectPlaylist; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static SelectPlaylist create() => SelectPlaylist._();
+  SelectPlaylist createEmptyInstance() => create();
+  static $pb.PbList<SelectPlaylist> createRepeated() => $pb.PbList<SelectPlaylist>();
+  @$core.pragma('dart2js:noInline')
+  static SelectPlaylist getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<SelectPlaylist>(create);
+  static SelectPlaylist? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $fixnum.Int64 get index => $_getI64(0);
+  @$pb.TagNumber(1)
+  set index($fixnum.Int64 v) { $_setInt64(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasIndex() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearIndex() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.bool get selected => $_getBF(1);
+  @$pb.TagNumber(2)
+  set selected($core.bool v) { $_setBool(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasSelected() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearSelected() => clearField(2);
+}
+
+class Comment extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Comment', createEmptyInstance: create)
+    ..aOB(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'noComment', protoName: 'noComment')
+    ..pc<CommentEntry>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'entries', $pb.PbFieldType.PM, subBuilder: CommentEntry.create)
+    ..hasRequiredFields = false
+  ;
+
+  Comment._() : super();
+  factory Comment({
+    $core.bool? noComment,
+    $core.Iterable<CommentEntry>? entries,
+  }) {
+    final _result = create();
+    if (noComment != null) {
+      _result.noComment = noComment;
+    }
+    if (entries != null) {
+      _result.entries.addAll(entries);
+    }
+    return _result;
+  }
+  factory Comment.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory Comment.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  Comment clone() => Comment()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  Comment copyWith(void Function(Comment) updates) => super.copyWith((message) => updates(message as Comment)) as Comment; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static Comment create() => Comment._();
+  Comment createEmptyInstance() => create();
+  static $pb.PbList<Comment> createRepeated() => $pb.PbList<Comment>();
+  @$core.pragma('dart2js:noInline')
+  static Comment getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Comment>(create);
+  static Comment? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.bool get noComment => $_getBF(0);
+  @$pb.TagNumber(1)
+  set noComment($core.bool v) { $_setBool(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasNoComment() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearNoComment() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.List<CommentEntry> get entries => $_getList(1);
+}
+
+class CommentEntry extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CommentEntry', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'key')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'value')
+    ..hasRequiredFields = false
+  ;
+
+  CommentEntry._() : super();
+  factory CommentEntry({
+    $core.String? key,
+    $core.String? value,
+  }) {
+    final _result = create();
+    if (key != null) {
+      _result.key = key;
+    }
+    if (value != null) {
+      _result.value = value;
+    }
+    return _result;
+  }
+  factory CommentEntry.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory CommentEntry.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  CommentEntry clone() => CommentEntry()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  CommentEntry copyWith(void Function(CommentEntry) updates) => super.copyWith((message) => updates(message as CommentEntry)) as CommentEntry; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static CommentEntry create() => CommentEntry._();
+  CommentEntry createEmptyInstance() => create();
+  static $pb.PbList<CommentEntry> createRepeated() => $pb.PbList<CommentEntry>();
+  @$core.pragma('dart2js:noInline')
+  static CommentEntry getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CommentEntry>(create);
+  static CommentEntry? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get key => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set key($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasKey() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearKey() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get value => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set value($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasValue() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearValue() => clearField(2);
+}
+
+class OpusData extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'OpusData', createEmptyInstance: create)
+    ..a<$core.List<$core.int>>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data', $pb.PbFieldType.OY)
+    ..a<$core.int>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'duration', $pb.PbFieldType.OU3)
+    ..hasRequiredFields = false
+  ;
+
+  OpusData._() : super();
+  factory OpusData({
+    $core.List<$core.int>? data,
+    $core.int? duration,
+  }) {
+    final _result = create();
+    if (data != null) {
+      _result.data = data;
+    }
+    if (duration != null) {
+      _result.duration = duration;
+    }
+    return _result;
+  }
+  factory OpusData.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory OpusData.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  OpusData clone() => OpusData()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  OpusData copyWith(void Function(OpusData) updates) => super.copyWith((message) => updates(message as OpusData)) as OpusData; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static OpusData create() => OpusData._();
+  OpusData createEmptyInstance() => create();
+  static $pb.PbList<OpusData> createRepeated() => $pb.PbList<OpusData>();
+  @$core.pragma('dart2js:noInline')
+  static OpusData getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<OpusData>(create);
+  static OpusData? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<$core.int> get data => $_getN(0);
+  @$pb.TagNumber(1)
+  set data($core.List<$core.int> v) { $_setBytes(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasData() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearData() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.int get duration => $_getIZ(1);
+  @$pb.TagNumber(2)
+  set duration($core.int v) { $_setUnsignedInt32(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasDuration() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearDuration() => clearField(2);
+}
+
+class OpusFrame extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'OpusFrame', createEmptyInstance: create)
+    ..a<$core.List<$core.int>>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data', $pb.PbFieldType.OY)
+    ..hasRequiredFields = false
+  ;
+
+  OpusFrame._() : super();
+  factory OpusFrame({
+    $core.List<$core.int>? data,
+  }) {
+    final _result = create();
+    if (data != null) {
+      _result.data = data;
+    }
+    return _result;
+  }
+  factory OpusFrame.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory OpusFrame.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  OpusFrame clone() => OpusFrame()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  OpusFrame copyWith(void Function(OpusFrame) updates) => super.copyWith((message) => updates(message as OpusFrame)) as OpusFrame; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static OpusFrame create() => OpusFrame._();
+  OpusFrame createEmptyInstance() => create();
+  static $pb.PbList<OpusFrame> createRepeated() => $pb.PbList<OpusFrame>();
+  @$core.pragma('dart2js:noInline')
+  static OpusFrame getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<OpusFrame>(create);
+  static OpusFrame? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<$core.int> get data => $_getN(0);
+  @$pb.TagNumber(1)
+  set data($core.List<$core.int> v) { $_setBytes(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasData() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearData() => clearField(1);
 }
 

@@ -1,6 +1,5 @@
 use crate::generated::message as pb;
 use crate::PlayerEvent;
-use protobuf::Message;
 
 pub fn convert_event(event: PlayerEvent) -> pb::ClientBound {
     let mut message = pb::ClientBound::new();
@@ -34,13 +33,31 @@ pub fn convert_event(event: PlayerEvent) -> pb::ClientBound {
             select_playlist.set_selected(selected);
             message.set_select_playlist(select_playlist);
         }
+        PlayerEvent::Metadata(comment_data) => {
+            let mut comment = pb::Comment::new();
+
+            if let Some(comment_data) = comment_data {
+                for (key, value) in comment_data.entries {
+                    let mut entry = pb::CommentEntry::new();
+                    entry.key = key;
+                    entry.value = value;
+                    comment.entries.push(entry);
+                }
+            } else {
+                comment.noComment = true;
+            }
+            message.set_comment(comment);
+        }
         PlayerEvent::Ready => {
             message.set_ready(pb::Ready::default());
         }
-        PlayerEvent::OpusFrame(data) => {
-            let mut opus_frame = pb::OpusFrame::new();
-            opus_frame.set_data(data);
-            message.set_opus_frame(opus_frame);
+        PlayerEvent::OpusData(frame) => {
+            let mut opus_data = pb::OpusData::new();
+
+            opus_data.data = frame.data.clone();
+            opus_data.duration = frame.duration.as_micros() as u32;
+
+            message.set_data(opus_data);
         }
     };
     message

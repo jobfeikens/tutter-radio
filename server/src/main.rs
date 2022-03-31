@@ -1,30 +1,26 @@
-use futures::{pin_mut, select, FutureExt, Sink, SinkExt, Stream, StreamExt};
+use futures::{SinkExt, StreamExt};
 mod common;
 mod local;
 mod player;
 mod util;
 mod convert;
 mod generated;
+mod mixer2;
 
 use crate::common::{Playlist};
 use crate::local::source::LocalSource;
 use crate::player::{Player, PlayerEvent};
-use crate::util::byte_buffer::ByteBuffer;
-use byteorder::LittleEndian;
 use futures::try_join;
 
 use log::LevelFilter;
 use simple_logger::SimpleLogger;
-use std::any::Any;
-use std::sync::atomic::{AtomicUsize, Ordering};
-use std::sync::{Arc, Mutex};
-use std::{env, error::Error, fmt};
+use std::sync::{Arc};
+use std::{env};
 use futures::stream::{SplitSink, SplitStream};
 use generated::message as pb;
 use protobuf::Message as PbMessage;
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::{TcpListener, TcpStream};
-use tokio::time::Duration;
+use clap::Parser;
 
 use tokio_tungstenite::{
     tungstenite,
@@ -39,11 +35,15 @@ use anyhow::Result;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    SimpleLogger::new().with_level(LevelFilter::Info).init()?;
+    let args = Args::parse();
 
-    let addr = env::args()
-        .nth(1)
+    let addr = args.address
         .unwrap_or_else(|| "0.0.0.0:8080".to_string());
+
+    let path = args.path
+        .unwrap_or_else(|| "/".to_string());
+
+    SimpleLogger::new().with_level(LevelFilter::Info).init()?;
 
     let player = Arc::new(Player::new());
 
@@ -52,13 +52,22 @@ async fn main() -> Result<()> {
         player: player.clone(),
     };
 
-    let source = LocalSource::new("/home/job/Music/tuttermusic");
+    let mut source = LocalSource::new(&path);
 
     try_join!(
         server.run(),
-        player.run(Box::new(source)),
+        player.run(&mut source),
     )?;
     unreachable!()
+}
+
+#[derive(Parser)]
+struct Args {
+    #[clap(short, long)]
+    address: Option<String>,
+
+    #[clap(short, long)]
+    path: Option<String>
 }
 
 struct Server {
@@ -101,7 +110,7 @@ async fn run_connection(
 ) {
     let (sink, stream) = stream.split();
 
-    let result = try_join!(
+    let _ = try_join!(
         send_connection(sink, player.clone()),
         receive_connection(stream, player.clone()),
     );

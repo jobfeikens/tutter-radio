@@ -27,6 +27,9 @@ impl LocalSource {
 
 impl LocalSource {
     async fn reload(&mut self) -> Result<()> {
+        let mut song_count: usize = 0;
+        let mut playlist_count: usize = 0;
+
         self.files.clear();
 
         let mut directories = fs::read_dir(&self.path).await?;
@@ -35,19 +38,19 @@ impl LocalSource {
 
             let mut files = fs::read_dir(directory.path()).await?;
             while let Some(song) = files.try_next().await? {
-                println!("{}", get_string(song.file_name()));
-
                 songs.push(get_string(song.file_name()));
+                song_count += 1;
             }
 
             self.files.insert(get_string(directory.file_name()), songs);
-
-            println!("{}", get_string(directory.file_name()));
+            playlist_count += 1;
         }
+        log::info!("Loaded {} songs in {} playlists", song_count, playlist_count);
+
         Ok(())
     }
 
-    async fn initialize(&mut self) -> Result<()> {
+    pub async fn initialize(&mut self) -> Result<()> {
         if !self.initialized {
             self.reload().await?;
             self.initialized = true;

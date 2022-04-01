@@ -1,5 +1,5 @@
 use crate::common::MusicSource;
-use crate::mixer2::Mixer;
+use crate::mixer::Mixer;
 use crate::util::opus_packet::{read_packet, OggData, OpusFrame, VorbisCommentData};
 use crate::Playlist;
 use anyhow::Result;
@@ -59,6 +59,7 @@ impl Default for State {
     }
 }
 
+#[derive(Clone)]
 pub struct Player {
     state: Arc<(Mutex<State>, Condvar)>,
 }

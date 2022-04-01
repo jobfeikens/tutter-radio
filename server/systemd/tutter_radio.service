@@ -1,0 +1,11 @@
+[Unit]
+Description=Tutter Radio server
+
+[Service]
+User=tutterradio
+WorkingDirectory=/home/tutterradio
+ExecStart=/home/tutterradio/tutter-radio-server -p /home/tutterradio/playlists
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

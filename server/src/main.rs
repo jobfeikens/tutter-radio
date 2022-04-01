@@ -1,11 +1,13 @@
-use futures::{SinkExt, StreamExt};
+use std::env;
+use async_std::fs::File;
+use futures::{AsyncReadExt, SinkExt, StreamExt};
 mod common;
 mod local;
 mod player;
 mod util;
 mod convert;
 mod generated;
-mod mixer2;
+mod mixer;
 
 use crate::common::{Playlist};
 use crate::local::source::LocalSource;
@@ -15,12 +17,14 @@ use futures::try_join;
 use log::LevelFilter;
 use simple_logger::SimpleLogger;
 use std::sync::{Arc};
-use std::{env};
 use futures::stream::{SplitSink, SplitStream};
 use generated::message as pb;
 use protobuf::Message as PbMessage;
 use tokio::net::{TcpListener, TcpStream};
 use clap::Parser;
+use native_tls::{Identity};
+use tokio_native_tls::{TlsAcceptor, TlsStream};
+
 
 use tokio_tungstenite::{
     tungstenite,
@@ -31,28 +35,41 @@ use tokio_tungstenite::{
 };
 
 use crate::convert::convert_event;
-use anyhow::Result;
 
 #[tokio::main]
-async fn main() -> Result<()> {
+async fn main() -> anyhow::Result<()> {
     let args = Args::parse();
 
     let addr = args.address
-        .unwrap_or_else(|| "0.0.0.0:8080".to_string());
+        .unwrap_or_else(|| "0.0.0.0:8443".to_string());
 
-    let path = args.path
-        .unwrap_or_else(|| "/".to_string());
+    let playlist_path = args.playlist_path
+        .unwrap_or_else(|| env::current_dir().unwrap().to_str().unwrap().to_string());
+
+    let certificate_path = args.certificate_path
+        .unwrap_or_else(|| "~/identity.p12".to_string());
 
     SimpleLogger::new().with_level(LevelFilter::Info).init()?;
 
-    let player = Arc::new(Player::new());
+    let mut file = File::open(certificate_path).await?;
+    let mut identity = vec![];
+    file.read_to_end(&mut identity).await?;
+    let cert = Identity::from_pkcs12(&identity, "")?;
+
+    let tls_acceptor = TlsAcceptor::from(native_tls::TlsAcceptor::builder(cert).build()?);
+
+    let player = Player::new();
 
     let mut server = Server {
         listener: TcpListener::bind(&addr).await?,
+        tls_acceptor,
         player: player.clone(),
     };
 
-    let mut source = LocalSource::new(&path);
+    let mut source = LocalSource::new(&playlist_path);
+    source.initialize().await?;
+
+    log::info!("Started successfully!");
 
     try_join!(
         server.run(),
@@ -67,46 +84,61 @@ struct Args {
     address: Option<String>,
 
     #[clap(short, long)]
-    path: Option<String>
+    playlist_path: Option<String>,
+
+    #[clap(short, long)]
+    certificate_path: Option<String>
 }
 
 struct Server {
     listener: TcpListener,
-    player: Arc<Player>
+    tls_acceptor: TlsAcceptor,
+    player: Player,
 }
 
 impl Server {
-    async fn run(&mut self) -> Result<()> {
+    async fn run(&mut self) -> anyhow::Result<()> {
+        let mut connection_counter = 0;
+
         loop {
-            let (stream, address) = self.listener.accept().await?;
-            log::info!("New connection: {}", address);
+            let (socket, remote_addr) = self.listener.accept().await?;
+            let connection_id = connection_counter;
+            connection_counter += 1;
 
-            self.accept_connection(stream).await?;
+            log::info!("New connection {}: {}", connection_id, remote_addr);
+
+            let tls_acceptor = self.tls_acceptor.clone();
+            let player = self.player.clone();
+
+            tokio::spawn(async move {
+                let stream = tls_acceptor.accept(socket).await.expect("accept error");
+
+                accept_connection(connection_id, stream, player).await.expect("tungstenite accept error");
+            });
         }
-    }
-
-    async fn accept_connection(&mut self, stream: TcpStream) -> Result<()> {
-        match tokio_tungstenite::accept_async(stream).await {
-            Ok(stream) => {
-                // Clone connection resources
-                let player = Arc::clone(&self.player);
-
-                // Run connection in separate task
-                tokio::spawn(async move {
-                    run_connection(stream, player).await;
-                });
-            }
-            Err(err) => {
-                log::warn!("Error processing connection: {}", err)
-            }
-        };
-        Ok(())
     }
 }
 
+async fn accept_connection(connection_id: usize, stream: TlsStream<TcpStream>, player: Player) -> anyhow::Result<()> {
+
+    match tokio_tungstenite::accept_async(stream).await {
+        Ok(stream) => {
+            // Run connection in separate task
+            tokio::spawn(async move {
+                run_connection(connection_id, stream, player).await;
+            });
+        }
+        Err(err) => {
+            log::warn!("Error processing connection {}: {}", connection_id, err)
+        }
+    };
+    Ok(())
+}
+
 async fn run_connection(
-    stream: WebSocketStream<TcpStream>,
-    player: Arc<Player>
+    connection_id: usize,
+    stream: WebSocketStream<TlsStream<TcpStream>>,
+    player: Player
 ) {
     let (sink, stream) = stream.split();
 
@@ -114,12 +146,13 @@ async fn run_connection(
         send_connection(sink, player.clone()),
         receive_connection(stream, player.clone()),
     );
+    log::info!("Connection {} disconnected", connection_id);
 }
 
 async fn send_connection(
-    mut stream: SplitSink<WebSocketStream<TcpStream>, tungstenite::Message>,
-    player: Arc<Player>
-) -> Result<()> {
+    mut stream: SplitSink<WebSocketStream<TlsStream<TcpStream>>, tungstenite::Message>,
+    player: Player,
+) -> anyhow::Result<()> {
     let receiver = player.observe().await;
 
     loop {
@@ -130,9 +163,9 @@ async fn send_connection(
 }
 
 async fn receive_connection(
-    mut stream: SplitStream<WebSocketStream<TcpStream>>,
-    player: Arc<Player>
-) -> Result<()> {
+    mut stream: SplitStream<WebSocketStream<TlsStream<TcpStream>>>,
+    player: Player,
+) -> anyhow::Result<()> {
     while let Some(data) = stream.next().await {
         let bytes = data?;
 
@@ -149,7 +182,5 @@ async fn receive_connection(
             player.select_playlist(select.index as usize, select.selected).await;
         }
     }
-    log::info!("End of stream");
-    // End of stream
     Ok(())
 }

@@ -13,7 +13,8 @@ Future<void> main() async {
 
   final player = WebAudioPlayer()..init();
 
-  final viewModel = ViewModel(WebSocketClient(uri: "ws://localhost:8080"), player);
+  final viewModel = ViewModel(WebSocketClient(uri: "wss://tutter.nl:8443"), player); // digitalocean
+  //final viewModel = ViewModel(WebSocketClient(uri: "ws://localhost:8080"), player);
   await viewModel.init();
   viewModel.connect();
 

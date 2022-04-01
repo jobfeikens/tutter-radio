@@ -10,8 +10,10 @@ async-trait = "0.1.52"
 futures = "0.3.21"
 simple_logger = "2.1.0"
 log = "0.4.14"
+tokio-native-tls = "0.3.0"
+native-tls = "0.2.10"
 tokio = { version = "1.17.0", features = ["full"] }
-tokio-tungstenite = "0.17.1"
+tokio-tungstenite = { version = "0.17.1", features = ["native-tls"] }
 protobuf = { version = "2.27.1", features = ["bytes"]}
 async-channel = "1.6.1"
 async-std = { version = "1.10.0", features = ["unstable"] }

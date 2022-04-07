@@ -1,0 +1,6 @@
+#!/bin/bash
+flutter build web --release
+sudo rm -rf /var/www/html
+sudo cp -r build/web /var/www/html
+sudo systemctl restart apache2
+Q

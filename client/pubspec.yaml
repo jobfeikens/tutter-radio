@@ -39,6 +39,7 @@ flutter:
     - assets/github.svg
     - assets/tutter.png
     - assets/opus.svg
+    - assets/tutterdj.jpg
 
   fonts:
     - family: Fredoka

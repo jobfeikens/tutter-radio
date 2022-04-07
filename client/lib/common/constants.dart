@@ -1,0 +1,1 @@
+const defaultVolume = 0.5;

@@ -1,9 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';import 'package:potter_music_client/common/client_event.dart';
-import 'package:potter_music_client/common/player.dart';
-import 'package:potter_music_client/model/persistence.dart';
+import 'package:flutter/foundation.dart';import 'package:tutter_radio/common/client_event.dart';
+import 'package:tutter_radio/common/player.dart';
+import 'package:tutter_radio/model/abstract/notification_service.dart';
+import 'package:tutter_radio/model/persistence.dart';
 import 'package:rxdart/rxdart.dart';
 
 import 'common/constants.dart';
@@ -16,8 +17,9 @@ class ViewModel implements ClientEventVisitor {
 
   final Client client;
   final Player player;
+  final NotificationService notificationService;
 
-  ViewModel(this.client, this.player);
+  ViewModel(this.client, this.player, this.notificationService);
 
   static ViewModel of(BuildContext context) {
     return context
@@ -131,6 +133,10 @@ class ViewModel implements ClientEventVisitor {
   @override
   void onMetadata(Metadata? metadata) {
     this.metadata.add(metadata);
+
+    if (metadata != null) {
+      notificationService.showNotification(metadata);
+    }
   }
 
   @override

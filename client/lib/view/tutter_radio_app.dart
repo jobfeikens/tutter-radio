@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:potter_music_client/view/theme.dart';
+import 'package:tutter_radio/view/theme.dart';
 
 import '../view_model.dart';
 import 'home_page.dart';
@@ -43,7 +43,11 @@ class TutterRadioApp extends StatelessWidget {
               backgroundColor: menuColor
             ),
           ),
-          home: const MyHomePage(),
+          //home: const MyHomePage(),
+          initialRoute: '/radio',
+          routes: {
+            '/radio': (context) => const MyHomePage()
+          },
         )
     );
   }

@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:potter_music_client/view/cover_art_processor.dart';
+import 'package:tutter_radio/view/cover_art_processor.dart';
 
 import '../../common/player.dart';
 
@@ -61,10 +61,10 @@ class DefaultMetadataBuilder extends StatelessWidget {
   Widget build(BuildContext context) {
     return MetadataBuilder(
       getter: (metadata) => DefaultMetadata(
-          metadata.artist ?? 'Unknown artist',
-          metadata.title ?? 'Unknown title',
-          metadata.album ?? 'Unknown album',
-          metadata.potter ?? 'Unknown potter name',
+          metadata.artist,
+          metadata.title,
+          metadata.album,
+          metadata.potter,
       ),
       builder: builder,
     );

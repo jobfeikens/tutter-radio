@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:potter_music_client/common/connection_state.dart';
-import 'package:potter_music_client/common/player.dart';
+import 'package:tutter_radio/common/connection_state.dart';
+import 'package:tutter_radio/common/player.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:web_socket_channel/html.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';

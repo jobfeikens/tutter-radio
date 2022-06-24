@@ -1,8 +1,9 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher_web/url_launcher_web.dart';
+import 'package:websafe_svg/websafe_svg.dart';
 
 import '../common/connection_state.dart';
 import '../common/constants.dart';
@@ -82,7 +83,6 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
               return Scaffold(
                 appBar: buildAppBar(context, connectionState.data),
                 body: buildBody(context),
-                bottomNavigationBar: buildFooter(context),
                 drawer: buildDrawer(context),
               );
             },
@@ -136,8 +136,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 
   Widget buildDrawer(BuildContext context) {
     return Drawer(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
+      child: ListView(
         children: [
           const SizedBox(height: 4),
           ListTile(
@@ -230,6 +229,10 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
               );
             },
           ),
+          const Divider(),
+          buildFooter(context),
+          const Divider(),
+          buildPoweredBy(context),
         ],
       ),
     );
@@ -237,36 +240,39 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 
   Widget buildBody(BuildContext context) {
     return Center(
-      child: SubjectBuilder(
-        subject: (viewModel) => viewModel.connectionState,
-        builder: (
-          BuildContext context,
-          AsyncSnapshot<ClientConnectionState> state
-        ) {
-          late final Widget child;
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: SubjectBuilder(
+            subject: (viewModel) => viewModel.connectionState,
+            builder: (
+                BuildContext context,
+                AsyncSnapshot<ClientConnectionState> state
+                ) {
+              late final Widget child;
 
-          switch (state.requireData) {
+              switch (state.requireData) {
 
-            case ClientConnectionState.disconnected:
-              child = buildBodyDisconnected(context);
-              break;
+                case ClientConnectionState.disconnected:
+                  child = buildBodyDisconnected(context);
+                  break;
 
-            case ClientConnectionState.connecting:
-              child = buildBodyConnecting(context);
-              break;
+                case ClientConnectionState.connecting:
+                  child = buildBodyConnecting(context);
+                  break;
 
-            case ClientConnectionState.ready:
-              child = buildBodyReady(context);
-              break;
-          }
-          return AnimatedSwitcher(
-            duration: const Duration(milliseconds: 100),
-            child: KeyedSubtree(
-              key: ValueKey(state.requireData),
-              child: child,
-            ),
-          );
-        }
+                case ClientConnectionState.ready:
+                  child = buildBodyReady(context);
+                  break;
+              }
+              return AnimatedSwitcher(
+                duration: const Duration(milliseconds: 100),
+                child: KeyedSubtree(
+                  key: ValueKey(state.requireData),
+                  child: child,
+                ),
+              );
+            }
+        ),
       ),
     );
   }
@@ -286,21 +292,37 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Card(
-            color: Colors.transparent,
-            elevation: 6,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+          Flexible(
+            child: LayoutBuilder(
+              builder: (
+                BuildContext context,
+                BoxConstraints constraints
+              ) {
+                const padding = 32.0;
+                final size = min(min(constraints.maxWidth, constraints.maxHeight - padding), 320.0);
+
+                if (size < 160.0) {
+                  return const SizedBox();
+                } else {
+                  return Padding(
+                      padding: const EdgeInsets.only(bottom: padding),
+                      child: Card(
+                        color: Colors.transparent,
+                        elevation: 6,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: CoverArt(
+                          width: size,
+                          height: size,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                  );
+                }
+              },
             ),
-            clipBehavior: Clip.antiAlias,
-            child: const CoverArt(
-              width: 320,
-              height: 320,
-              fit: BoxFit.cover,
-            ),
-          ),
-          const SizedBox(
-              height: 32
           ),
           DefaultMetadataBuilder(
             builder: (
@@ -439,25 +461,44 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   }
 
   Widget buildFooter(BuildContext context) {
-    return Material(
-      color: const Color(0xFF232A31),
-      elevation: 6,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 8, 8, 8),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('© 2022 Job Feikens',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-            buildFooterPicture(
-              assetName: 'assets/github.svg',
-              link: 'https://github.com/jobfeikens/tutter-music',
-              color: Theme.of(context).textTheme.caption?.color,
-              tooltip: 'View project on GitHub'
-            )
-          ],
-        ),
+    return ListTile(
+      title: Text('© 2022 Job Feikens',
+        style: Theme.of(context).textTheme.bodySmall,
+      ),
+      trailing: buildFooterPicture(
+        assetName: 'assets/github.svg',
+        link: 'https://github.com/jobfeikens/tutter-music',
+        tooltip: 'View project on Github',
+        color: Theme.of(context).textTheme.caption?.color
+      ),
+    );
+  }
+
+  Widget buildPoweredBy(BuildContext context) {
+    return ListTile(
+      title: Text('Powered by:',
+        style: Theme.of(context).textTheme.caption,
+      ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          buildFooterPicture(
+            assetName: 'assets/ferris.svg',
+            link: 'https://www.rust-lang.org/',
+            tooltip: 'Rust programming language',
+          ),
+          buildFooterPicture(
+            assetName: 'assets/flutter.svg',
+            link: 'https://flutter.dev/',
+            tooltip: 'Flutter app framework',
+          ),
+          buildFooterPicture(
+            assetName: 'assets/opus.svg',
+            link: 'https://opus-codec.org/',
+            tooltip: 'Opus audio codec',
+            color: Theme.of(context).textTheme.caption?.color
+          )
+        ],
       ),
     );
   }
@@ -467,8 +508,9 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
       tooltip: tooltip,
       padding: EdgeInsets.zero,
       onPressed: () => UrlLauncherPlugin().launch(link),
-      icon: SvgPicture.asset(assetName,
-          height: 20,
+      icon: WebsafeSvg.asset(assetName,
+        height: 20,
+        width: 20,
         fit: BoxFit.fitHeight,
         color: color,
       ),

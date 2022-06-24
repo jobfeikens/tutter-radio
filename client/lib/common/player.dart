@@ -22,20 +22,20 @@ class Metadata {
   Metadata(Map<String, String> entries):
         entries = entries.map((key, value) => MapEntry(key.toLowerCase(), value));
 
-  String? get artist {
-    return entries['artist'];
+  String get artist {
+    return entries['artist'] ?? 'Unknown artist';
   }
 
-  String? get title {
-    return entries['title'];
+  String get title {
+    return entries['title'] ?? 'Unknown title';
   }
 
   String? get description {
     return entries['description'];
   }
 
-  String? get album {
-    return entries['album'];
+  String get album {
+    return entries['album'] ?? 'Unknown album';
   }
 
   // Encoded as base64
@@ -43,8 +43,8 @@ class Metadata {
     return entries['metadata_block_picture'];
   }
 
-  String? get potter {
-    return entries['potter'];
+  String get potter {
+    return entries['potter'] ?? 'Unknown Potter';
   }
 
   @override

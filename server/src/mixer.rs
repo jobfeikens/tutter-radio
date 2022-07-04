@@ -2,54 +2,70 @@ use rand::seq::SliceRandom;
 use rand::thread_rng;
 use crate::Playlist;
 
-type QualifiedSong = (String, usize);
+#[derive(Clone)]
+struct MixedSong {
+    playlist: String,
+    index: usize,
+}
 
 pub struct Mixer {
-    done: Vec<QualifiedSong>,
-    remaining: Vec<QualifiedSong>,
+    songs: Vec<MixedSong>,
+    enabled_playlists: Vec<String>,
+    index: usize,
 }
 
 impl Mixer {
     pub fn new() -> Self {
         Mixer {
-            done: Vec::new(),
-            remaining: Vec::new(),
+            songs: Vec::new(),
+            enabled_playlists: Vec::new(),
+            index: 0,
         }
+    }
+
+    pub fn has_next(&self) -> bool {
+        !self.songs.is_empty() && !self.enabled_playlists.is_empty()
     }
 
     pub fn add(&mut self, playlist: &Playlist) {
         for index in 0..playlist.len {
-            self.remaining.push((playlist.name.clone(), index))
+            self.songs.push(
+                MixedSong {
+                    playlist: playlist.name.clone(),
+                    index,
+                }
+            );
         }
-        self.shuffle();
+        self.songs.shuffle(&mut thread_rng());
+        self.enable(playlist);
     }
 
-    pub fn remove(&mut self, playlist: &Playlist) {
-        let predicate = |(p, _): &QualifiedSong| p != &playlist.name;
-        self.done.retain(predicate);
-        self.remaining.retain(predicate);
+    pub fn enable(&mut self, playlist: &Playlist) {
+        self.disable(playlist);
+        self.enabled_playlists.push(playlist.name.clone());
     }
 
-    pub fn has_next(&self) -> bool {
-        self.done.len() + self.remaining.len() > 0
+    pub fn disable(&mut self, playlist: &Playlist) {
+        self.enabled_playlists.retain(|other| other != &playlist.name);
     }
 
     pub fn next(&mut self) -> Option<(String, usize)> {
-        // All songs were played so reshuffle everything
-        if self.remaining.is_empty() {
-            self.remaining.append(&mut self.done);
-            self.shuffle();
-        }
-        if self.remaining.is_empty() {
-            None
-        } else {
-            let song = self.remaining.pop().unwrap();
-            self.done.push(song.clone());
-            Some(song)
-        }
-    }
+        let start_index = self.index;
 
-    fn shuffle(&mut self) {
-        self.remaining.shuffle(&mut thread_rng());
+        loop {
+            if self.index < self.songs.len() {
+                let song = self.songs[self.index].clone();
+
+                if self.enabled_playlists.contains(&song.playlist) {
+                    return Some((song.playlist, song.index));
+                }
+                self.index += 1;
+            } else {
+                self.index = 0;
+            }
+            if self.index == start_index {
+                return None;
+            }
+        }
     }
 }

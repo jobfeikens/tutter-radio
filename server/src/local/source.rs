@@ -6,7 +6,6 @@ use async_trait::async_trait;
 use async_std::fs;
 use futures::TryStreamExt;
 use tokio::io::AsyncRead;
-use crate::StreamExt;
 
 
 pub struct LocalSource {

@@ -1,6 +1,5 @@
 use async_trait::async_trait;
 
-use std::error::Error;
 use tokio::io::AsyncRead;
 
 pub type Result<T> = anyhow::Result<T>;

@@ -16,7 +16,6 @@ use futures::try_join;
 
 use log::LevelFilter;
 use simple_logger::SimpleLogger;
-use std::sync::{Arc};
 use futures::stream::{SplitSink, SplitStream};
 use generated::message as pb;
 use protobuf::Message as PbMessage;
@@ -181,7 +180,7 @@ async fn receive_connection(
             player.select_playlist(select.index as usize, select.selected).await;
 
         } else if message.has_show_potter_name() {
-            player.show_potter_name(message.show_potter_name().show);
+            player.show_potter_name(message.show_potter_name().show).await;
         }
     }
     Ok(())

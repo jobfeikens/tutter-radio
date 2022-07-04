@@ -101,7 +101,7 @@ impl Player {
         Ok(())
     }
 
-    async fn play_songs(&self, mut source: &mut dyn MusicSource) -> Result<()> {
+    async fn play_songs(&self, source: &mut dyn MusicSource) -> Result<()> {
         let mut reader = None;
 
         let mut frame_time = Instant::now();
@@ -236,7 +236,7 @@ impl Player {
         self.use_state(|mut state| {
             state.show_potter_name = show;
             send_event(&mut state.senders, ShowPotterName(show));
-        });
+        }).await;
     }
 
     pub async fn observe(&self) -> Receiver<PlayerEvent> {

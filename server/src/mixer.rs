@@ -56,10 +56,11 @@ impl Mixer {
             if self.index < self.songs.len() {
                 let song = self.songs[self.index].clone();
 
+                self.index += 1;
+
                 if self.enabled_playlists.contains(&song.playlist) {
                     return Some((song.playlist, song.index));
                 }
-                self.index += 1;
             } else {
                 self.index = 0;
             }

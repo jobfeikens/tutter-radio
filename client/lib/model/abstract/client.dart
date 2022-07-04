@@ -7,4 +7,6 @@ abstract class Client {
   void pauseResume(bool paused);
 
   void selectPlaylist(int index, bool selected);
+
+  void showPotterName(bool show);
 }

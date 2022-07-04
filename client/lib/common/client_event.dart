@@ -17,6 +17,8 @@ abstract class ClientEventVisitor {
   void onPauseResume(bool paused);
 
   void onData(List<int> data);
+
+  void onShowPotterName(bool show);
 }
 
 abstract class ClientEvent {
@@ -78,4 +80,11 @@ class EventData implements ClientEvent {
 
   @override
   void visit(ClientEventVisitor visitor) => visitor.onData(data);
+}
+
+class EventShowPotterName implements ClientEvent {
+  late final bool show;
+
+  @override
+  void visit(ClientEventVisitor visitor)=> visitor.onShowPotterName(show);
 }

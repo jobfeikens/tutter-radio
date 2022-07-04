@@ -30,7 +30,7 @@ class ViewModel implements ClientEventVisitor {
   final _persistence = Persistence();
 
   final volume = BehaviorSubject<double>();
-  final showPotter = BehaviorSubject<bool>();
+  final showPotterName = BehaviorSubject<bool>();
   final listenerCount = BehaviorSubject<int?>();
   final isPaused = BehaviorSubject<bool?>();
   final playlists = BehaviorSubject<List<SelectedPlaylist>>();
@@ -41,7 +41,6 @@ class ViewModel implements ClientEventVisitor {
   Future<void> init() async {
     await _persistence.init();
     setVolume(_persistence.volume ?? defaultVolume);
-    setShowPotter(_persistence.showPotter ?? true);
     _resetState();
   }
 
@@ -77,9 +76,10 @@ class ViewModel implements ClientEventVisitor {
     _persistence.volume = volume;
   }
 
-  void setShowPotter(bool showPotter) {
-    this.showPotter.add(showPotter);
-    _persistence.showPotter = showPotter;
+  void setShowPotter(bool show) {
+    showPotterName.add(show);
+
+    client.showPotterName(show);
   }
 
   void togglePause() {
@@ -152,7 +152,13 @@ class ViewModel implements ClientEventVisitor {
     connectionState.add(ClientConnectionState.ready);
   }
 
+  @override
+  void onShowPotterName(bool show) {
+    // TODO: implement onShowPotterName
+  }
+
   void _resetState() {
+    showPotterName.add(false);
     listenerCount.add(0);
     isPaused.add(true);
     playlists.add([]);

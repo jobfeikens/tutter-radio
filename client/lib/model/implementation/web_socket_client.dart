@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:tutter_radio/common/connection_state.dart';
 import 'package:tutter_radio/common/player.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:tutter_radio/generated/message.pbserver.dart';
 import 'package:web_socket_channel/html.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:fixnum/fixnum.dart';
@@ -80,6 +81,12 @@ class WebSocketClient extends Client {
         });
   }
 
+  @override
+  void showPotterName(bool show) {
+    _sendMessage((message) =>
+    message.showPotterName = pb.ShowPotterName(show: show));
+  }
+
   void _sendMessage(Function(pb.ServerBound) assign) {
     final message = pb.ServerBound();
     assign.call(message);
@@ -129,6 +136,9 @@ class WebSocketClient extends Client {
 
       case pb.ClientBound_Type.data:
         return EventData()..data = message.data.data;
+        
+      case pb.ClientBound_Type.showPotterName:
+        return EventShowPotterName()..show = message.showPotterName.show;
 
       default:
         return null;

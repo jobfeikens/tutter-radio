@@ -13,6 +13,7 @@ import 'package:protobuf/protobuf.dart' as $pb;
 enum ServerBound_Type {
   playPause, 
   selectPlaylist, 
+  showPotterName, 
   notSet
 }
 
@@ -20,12 +21,14 @@ class ServerBound extends $pb.GeneratedMessage {
   static const $core.Map<$core.int, ServerBound_Type> _ServerBound_TypeByTag = {
     1 : ServerBound_Type.playPause,
     2 : ServerBound_Type.selectPlaylist,
+    3 : ServerBound_Type.showPotterName,
     0 : ServerBound_Type.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ServerBound', createEmptyInstance: create)
-    ..oo(0, [1, 2])
+    ..oo(0, [1, 2, 3])
     ..aOM<PlayPause>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'playPause', subBuilder: PlayPause.create)
     ..aOM<SelectPlaylist>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'selectPlaylist', subBuilder: SelectPlaylist.create)
+    ..aOM<ShowPotterName>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'showPotterName', subBuilder: ShowPotterName.create)
     ..hasRequiredFields = false
   ;
 
@@ -33,6 +36,7 @@ class ServerBound extends $pb.GeneratedMessage {
   factory ServerBound({
     PlayPause? playPause,
     SelectPlaylist? selectPlaylist,
+    ShowPotterName? showPotterName,
   }) {
     final _result = create();
     if (playPause != null) {
@@ -40,6 +44,9 @@ class ServerBound extends $pb.GeneratedMessage {
     }
     if (selectPlaylist != null) {
       _result.selectPlaylist = selectPlaylist;
+    }
+    if (showPotterName != null) {
+      _result.showPotterName = showPotterName;
     }
     return _result;
   }
@@ -88,6 +95,17 @@ class ServerBound extends $pb.GeneratedMessage {
   void clearSelectPlaylist() => clearField(2);
   @$pb.TagNumber(2)
   SelectPlaylist ensureSelectPlaylist() => $_ensure(1);
+
+  @$pb.TagNumber(3)
+  ShowPotterName get showPotterName => $_getN(2);
+  @$pb.TagNumber(3)
+  set showPotterName(ShowPotterName v) { setField(3, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasShowPotterName() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearShowPotterName() => clearField(3);
+  @$pb.TagNumber(3)
+  ShowPotterName ensureShowPotterName() => $_ensure(2);
 }
 
 enum ClientBound_Type {
@@ -100,6 +118,7 @@ enum ClientBound_Type {
   ready, 
   comment, 
   data, 
+  showPotterName, 
   notSet
 }
 
@@ -114,10 +133,11 @@ class ClientBound extends $pb.GeneratedMessage {
     7 : ClientBound_Type.ready,
     8 : ClientBound_Type.comment,
     9 : ClientBound_Type.data,
+    10 : ClientBound_Type.showPotterName,
     0 : ClientBound_Type.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ClientBound', createEmptyInstance: create)
-    ..oo(0, [1, 2, 3, 4, 5, 6, 7, 8, 9])
+    ..oo(0, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
     ..aOM<HeartBeat>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'heartBeat', subBuilder: HeartBeat.create)
     ..aOM<PlayPause>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'playPause', subBuilder: PlayPause.create)
     ..aOM<Listeners>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'listeners', subBuilder: Listeners.create)
@@ -127,6 +147,7 @@ class ClientBound extends $pb.GeneratedMessage {
     ..aOM<Ready>(7, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'ready', subBuilder: Ready.create)
     ..aOM<Comment>(8, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'comment', subBuilder: Comment.create)
     ..aOM<OpusData>(9, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data', subBuilder: OpusData.create)
+    ..aOM<ShowPotterName>(10, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'showPotterName', subBuilder: ShowPotterName.create)
     ..hasRequiredFields = false
   ;
 
@@ -141,6 +162,7 @@ class ClientBound extends $pb.GeneratedMessage {
     Ready? ready,
     Comment? comment,
     OpusData? data,
+    ShowPotterName? showPotterName,
   }) {
     final _result = create();
     if (heartBeat != null) {
@@ -169,6 +191,9 @@ class ClientBound extends $pb.GeneratedMessage {
     }
     if (data != null) {
       _result.data = data;
+    }
+    if (showPotterName != null) {
+      _result.showPotterName = showPotterName;
     }
     return _result;
   }
@@ -294,6 +319,17 @@ class ClientBound extends $pb.GeneratedMessage {
   void clearData() => clearField(9);
   @$pb.TagNumber(9)
   OpusData ensureData() => $_ensure(8);
+
+  @$pb.TagNumber(10)
+  ShowPotterName get showPotterName => $_getN(9);
+  @$pb.TagNumber(10)
+  set showPotterName(ShowPotterName v) { setField(10, v); }
+  @$pb.TagNumber(10)
+  $core.bool hasShowPotterName() => $_has(9);
+  @$pb.TagNumber(10)
+  void clearShowPotterName() => clearField(10);
+  @$pb.TagNumber(10)
+  ShowPotterName ensureShowPotterName() => $_ensure(9);
 }
 
 class HeartBeat extends $pb.GeneratedMessage {
@@ -821,5 +857,52 @@ class OpusFrame extends $pb.GeneratedMessage {
   $core.bool hasData() => $_has(0);
   @$pb.TagNumber(1)
   void clearData() => clearField(1);
+}
+
+class ShowPotterName extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ShowPotterName', createEmptyInstance: create)
+    ..aOB(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'show')
+    ..hasRequiredFields = false
+  ;
+
+  ShowPotterName._() : super();
+  factory ShowPotterName({
+    $core.bool? show,
+  }) {
+    final _result = create();
+    if (show != null) {
+      _result.show = show;
+    }
+    return _result;
+  }
+  factory ShowPotterName.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ShowPotterName.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ShowPotterName clone() => ShowPotterName()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ShowPotterName copyWith(void Function(ShowPotterName) updates) => super.copyWith((message) => updates(message as ShowPotterName)) as ShowPotterName; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static ShowPotterName create() => ShowPotterName._();
+  ShowPotterName createEmptyInstance() => create();
+  static $pb.PbList<ShowPotterName> createRepeated() => $pb.PbList<ShowPotterName>();
+  @$core.pragma('dart2js:noInline')
+  static ShowPotterName getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ShowPotterName>(create);
+  static ShowPotterName? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.bool get show => $_getBF(0);
+  @$pb.TagNumber(1)
+  set show($core.bool v) { $_setBool(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasShow() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearShow() => clearField(1);
 }
 

@@ -33,16 +33,17 @@ pub enum PlayerEvent {
     Ready,
 
     OpusData(OpusFrame),
+    ShowPotterName(bool),
 }
 
 pub struct State {
     is_paused: bool,
     senders: Vec<Sender<PlayerEvent>>,
     metadata: Option<VorbisCommentData>,
-
     playlists: Vec<(Playlist, bool)>,
-    mixer: Mixer,
+    show_potter_name: bool,
 
+    mixer: Mixer,
     buffer: FrameBuffer,
 }
 
@@ -52,6 +53,7 @@ impl Default for State {
             is_paused: true,
             senders: Default::default(),
             playlists: Default::default(),
+            show_potter_name: false,
             mixer: Mixer::new(),
             metadata: None,
             buffer: FrameBuffer::new(BUFFER_SIZE),
@@ -217,10 +219,10 @@ impl Player {
                     let playlist = playlist.clone();
 
                     if update {
-                        state.mixer.add(&playlist);
+                        state.mixer.enable(&playlist);
                         log::info!("Playlist {} selected", index);
                     } else {
-                        state.mixer.remove(&playlist);
+                        state.mixer.disable(&playlist);
                         log::info!("Playlist {} unselected", index);
                     }
                     send_event(&mut state.senders, SelectPlaylist(index, update));
@@ -228,6 +230,13 @@ impl Player {
             }
         })
         .await;
+    }
+
+    pub async fn show_potter_name(&self, show: bool) {
+        self.use_state(|mut state| {
+            state.show_potter_name = show;
+            send_event(&mut state.senders, ShowPotterName(show));
+        });
     }
 
     pub async fn observe(&self) -> Receiver<PlayerEvent> {
@@ -246,6 +255,7 @@ impl Player {
                 }
             }
             events.push(Metadata(state.metadata.clone()));
+            events.push(ShowPotterName(state.show_potter_name));
 
             for frame in state.buffer.frames.iter() {
                 events.push(OpusData(frame.clone()))

@@ -152,7 +152,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
             ),
           ),
           SubjectBuilder(
-            subject: (viewModel) => viewModel.showPotter,
+            subject: (viewModel) => viewModel.showPotterName,
             builder: (
               BuildContext context,
               AsyncSnapshot<bool?> showPotter
@@ -400,7 +400,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
               height: 12
           ),
           SubjectBuilder(
-            subject: (viewModel) => viewModel.showPotter,
+            subject: (viewModel) => viewModel.showPotterName,
             builder: (
               BuildContext context,
               AsyncSnapshot<bool?> showPotter

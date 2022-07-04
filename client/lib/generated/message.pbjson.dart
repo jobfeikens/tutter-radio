@@ -14,6 +14,7 @@ const ServerBound$json = const {
   '2': const [
     const {'1': 'play_pause', '3': 1, '4': 1, '5': 11, '6': '.PlayPause', '9': 0, '10': 'playPause'},
     const {'1': 'select_playlist', '3': 2, '4': 1, '5': 11, '6': '.SelectPlaylist', '9': 0, '10': 'selectPlaylist'},
+    const {'1': 'show_potter_name', '3': 3, '4': 1, '5': 11, '6': '.ShowPotterName', '9': 0, '10': 'showPotterName'},
   ],
   '8': const [
     const {'1': 'type'},
@@ -21,7 +22,7 @@ const ServerBound$json = const {
 };
 
 /// Descriptor for `ServerBound`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List serverBoundDescriptor = $convert.base64Decode('CgtTZXJ2ZXJCb3VuZBIrCgpwbGF5X3BhdXNlGAEgASgLMgouUGxheVBhdXNlSABSCXBsYXlQYXVzZRI6Cg9zZWxlY3RfcGxheWxpc3QYAiABKAsyDy5TZWxlY3RQbGF5bGlzdEgAUg5zZWxlY3RQbGF5bGlzdEIGCgR0eXBl');
+final $typed_data.Uint8List serverBoundDescriptor = $convert.base64Decode('CgtTZXJ2ZXJCb3VuZBIrCgpwbGF5X3BhdXNlGAEgASgLMgouUGxheVBhdXNlSABSCXBsYXlQYXVzZRI6Cg9zZWxlY3RfcGxheWxpc3QYAiABKAsyDy5TZWxlY3RQbGF5bGlzdEgAUg5zZWxlY3RQbGF5bGlzdBI7ChBzaG93X3BvdHRlcl9uYW1lGAMgASgLMg8uU2hvd1BvdHRlck5hbWVIAFIOc2hvd1BvdHRlck5hbWVCBgoEdHlwZQ==');
 @$core.Deprecated('Use clientBoundDescriptor instead')
 const ClientBound$json = const {
   '1': 'ClientBound',
@@ -35,6 +36,7 @@ const ClientBound$json = const {
     const {'1': 'ready', '3': 7, '4': 1, '5': 11, '6': '.Ready', '9': 0, '10': 'ready'},
     const {'1': 'comment', '3': 8, '4': 1, '5': 11, '6': '.Comment', '9': 0, '10': 'comment'},
     const {'1': 'data', '3': 9, '4': 1, '5': 11, '6': '.OpusData', '9': 0, '10': 'data'},
+    const {'1': 'show_potter_name', '3': 10, '4': 1, '5': 11, '6': '.ShowPotterName', '9': 0, '10': 'showPotterName'},
   ],
   '8': const [
     const {'1': 'type'},
@@ -42,7 +44,7 @@ const ClientBound$json = const {
 };
 
 /// Descriptor for `ClientBound`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List clientBoundDescriptor = $convert.base64Decode('CgtDbGllbnRCb3VuZBIrCgpoZWFydF9iZWF0GAEgASgLMgouSGVhcnRCZWF0SABSCWhlYXJ0QmVhdBIrCgpwbGF5X3BhdXNlGAIgASgLMgouUGxheVBhdXNlSABSCXBsYXlQYXVzZRIqCglsaXN0ZW5lcnMYAyABKAsyCi5MaXN0ZW5lcnNIAFIJbGlzdGVuZXJzEjoKD2NsZWFyX3BsYXlsaXN0cxgEIAEoCzIPLkNsZWFyUGxheWxpc3RzSABSDmNsZWFyUGxheWxpc3RzEjEKDGFkZF9wbGF5bGlzdBgFIAEoCzIMLkFkZFBsYXlsaXN0SABSC2FkZFBsYXlsaXN0EjoKD3NlbGVjdF9wbGF5bGlzdBgGIAEoCzIPLlNlbGVjdFBsYXlsaXN0SABSDnNlbGVjdFBsYXlsaXN0Eh4KBXJlYWR5GAcgASgLMgYuUmVhZHlIAFIFcmVhZHkSJAoHY29tbWVudBgIIAEoCzIILkNvbW1lbnRIAFIHY29tbWVudBIfCgRkYXRhGAkgASgLMgkuT3B1c0RhdGFIAFIEZGF0YUIGCgR0eXBl');
+final $typed_data.Uint8List clientBoundDescriptor = $convert.base64Decode('CgtDbGllbnRCb3VuZBIrCgpoZWFydF9iZWF0GAEgASgLMgouSGVhcnRCZWF0SABSCWhlYXJ0QmVhdBIrCgpwbGF5X3BhdXNlGAIgASgLMgouUGxheVBhdXNlSABSCXBsYXlQYXVzZRIqCglsaXN0ZW5lcnMYAyABKAsyCi5MaXN0ZW5lcnNIAFIJbGlzdGVuZXJzEjoKD2NsZWFyX3BsYXlsaXN0cxgEIAEoCzIPLkNsZWFyUGxheWxpc3RzSABSDmNsZWFyUGxheWxpc3RzEjEKDGFkZF9wbGF5bGlzdBgFIAEoCzIMLkFkZFBsYXlsaXN0SABSC2FkZFBsYXlsaXN0EjoKD3NlbGVjdF9wbGF5bGlzdBgGIAEoCzIPLlNlbGVjdFBsYXlsaXN0SABSDnNlbGVjdFBsYXlsaXN0Eh4KBXJlYWR5GAcgASgLMgYuUmVhZHlIAFIFcmVhZHkSJAoHY29tbWVudBgIIAEoCzIILkNvbW1lbnRIAFIHY29tbWVudBIfCgRkYXRhGAkgASgLMgkuT3B1c0RhdGFIAFIEZGF0YRI7ChBzaG93X3BvdHRlcl9uYW1lGAogASgLMg8uU2hvd1BvdHRlck5hbWVIAFIOc2hvd1BvdHRlck5hbWVCBgoEdHlwZQ==');
 @$core.Deprecated('Use heartBeatDescriptor instead')
 const HeartBeat$json = const {
   '1': 'HeartBeat',
@@ -149,3 +151,13 @@ const OpusFrame$json = const {
 
 /// Descriptor for `OpusFrame`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List opusFrameDescriptor = $convert.base64Decode('CglPcHVzRnJhbWUSEgoEZGF0YRgBIAEoDFIEZGF0YQ==');
+@$core.Deprecated('Use showPotterNameDescriptor instead')
+const ShowPotterName$json = const {
+  '1': 'ShowPotterName',
+  '2': const [
+    const {'1': 'show', '3': 1, '4': 1, '5': 8, '10': 'show'},
+  ],
+};
+
+/// Descriptor for `ShowPotterName`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List showPotterNameDescriptor = $convert.base64Decode('Cg5TaG93UG90dGVyTmFtZRISCgRzaG93GAEgASgIUgRzaG93');

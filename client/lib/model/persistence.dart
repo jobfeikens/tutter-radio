@@ -1,7 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 const _keyVolume = 'volume';
-const _keyShowPotter = 'showPotter';
 
 class Persistence {
   late final SharedPreferences _preferences;
@@ -18,15 +17,5 @@ class Persistence {
     }
   }
 
-  set showPotter(bool? showPotter) {
-    if (showPotter != null) {
-      _preferences.setBool(_keyShowPotter, showPotter);
-    } else {
-      _preferences.remove(_keyShowPotter);
-    }
-  }
-
   double? get volume => _preferences.getDouble(_keyVolume);
-
-  bool? get showPotter => _preferences.getBool(_keyShowPotter);
 }

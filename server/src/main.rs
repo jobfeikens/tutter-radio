@@ -173,13 +173,15 @@ async fn receive_connection(
 
 
         if message.has_play_pause() {
-            player.play_pause(message.get_play_pause().is_paused).await;
-        }
+            player.play_pause(message.play_pause().is_paused).await;
 
-        else if message.has_select_playlist() {
-            let select = message.get_select_playlist();
+        } else if message.has_select_playlist() {
+            let select = message.select_playlist();
 
             player.select_playlist(select.index as usize, select.selected).await;
+
+        } else if message.has_show_potter_name() {
+            player.show_potter_name(message.show_potter_name().show);
         }
     }
     Ok(())

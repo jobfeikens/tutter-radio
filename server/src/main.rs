@@ -8,6 +8,7 @@ mod util;
 mod convert;
 mod generated;
 mod mixer;
+mod report;
 
 use crate::common::{Playlist};
 use crate::local::source::LocalSource;
@@ -34,6 +35,7 @@ use tokio_tungstenite::{
 };
 
 use crate::convert::convert_event;
+use crate::report::report_song;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -181,6 +183,11 @@ async fn receive_connection(
 
         } else if message.has_show_potter_name() {
             player.show_potter_name(message.show_potter_name().show).await;
+
+        } else if message.has_report_song() {
+            let report = message.report_song();
+
+            report_song(&report.artist, &report.title, &report.explanation).await?;
         }
     }
     Ok(())

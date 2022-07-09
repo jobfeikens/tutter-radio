@@ -5,6 +5,7 @@ message ServerBound {
     PlayPause play_pause = 1;
     SelectPlaylist select_playlist = 2;
     ShowPotterName show_potter_name = 3;
+    ReportSong report_song = 4;
   }
 }
 
@@ -70,4 +71,10 @@ message OpusFrame {
 
 message ShowPotterName {
   bool show = 1;
+}
+
+message ReportSong {
+  string artist = 1;
+  string title = 2;
+  string explanation = 3;
 }

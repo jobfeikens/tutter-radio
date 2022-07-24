@@ -199,7 +199,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                 AsyncSnapshot<List<SelectedPlaylist>?> playlistSnapshot,
                 ) {
               final playlists = [...playlistSnapshot.data ?? const <SelectedPlaylist>[]];
-              playlists.sort((a, b) => a.name.compareTo(b.name));
+              playlists.sort((a, b) => b.name.compareTo(a.name));
 
               final songCount = playlists.fold<int>(0, (count, playlist) => count + (playlist.selected ? playlist.length : 0));
               return Column(

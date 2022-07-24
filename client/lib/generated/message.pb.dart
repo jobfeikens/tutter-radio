@@ -14,6 +14,7 @@ enum ServerBound_Type {
   playPause, 
   selectPlaylist, 
   showPotterName, 
+  reportSong, 
   notSet
 }
 
@@ -22,13 +23,15 @@ class ServerBound extends $pb.GeneratedMessage {
     1 : ServerBound_Type.playPause,
     2 : ServerBound_Type.selectPlaylist,
     3 : ServerBound_Type.showPotterName,
+    4 : ServerBound_Type.reportSong,
     0 : ServerBound_Type.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ServerBound', createEmptyInstance: create)
-    ..oo(0, [1, 2, 3])
+    ..oo(0, [1, 2, 3, 4])
     ..aOM<PlayPause>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'playPause', subBuilder: PlayPause.create)
     ..aOM<SelectPlaylist>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'selectPlaylist', subBuilder: SelectPlaylist.create)
     ..aOM<ShowPotterName>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'showPotterName', subBuilder: ShowPotterName.create)
+    ..aOM<ReportSong>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'reportSong', subBuilder: ReportSong.create)
     ..hasRequiredFields = false
   ;
 
@@ -37,6 +40,7 @@ class ServerBound extends $pb.GeneratedMessage {
     PlayPause? playPause,
     SelectPlaylist? selectPlaylist,
     ShowPotterName? showPotterName,
+    ReportSong? reportSong,
   }) {
     final _result = create();
     if (playPause != null) {
@@ -47,6 +51,9 @@ class ServerBound extends $pb.GeneratedMessage {
     }
     if (showPotterName != null) {
       _result.showPotterName = showPotterName;
+    }
+    if (reportSong != null) {
+      _result.reportSong = reportSong;
     }
     return _result;
   }
@@ -106,6 +113,17 @@ class ServerBound extends $pb.GeneratedMessage {
   void clearShowPotterName() => clearField(3);
   @$pb.TagNumber(3)
   ShowPotterName ensureShowPotterName() => $_ensure(2);
+
+  @$pb.TagNumber(4)
+  ReportSong get reportSong => $_getN(3);
+  @$pb.TagNumber(4)
+  set reportSong(ReportSong v) { setField(4, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasReportSong() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearReportSong() => clearField(4);
+  @$pb.TagNumber(4)
+  ReportSong ensureReportSong() => $_ensure(3);
 }
 
 enum ClientBound_Type {
@@ -904,5 +922,80 @@ class ShowPotterName extends $pb.GeneratedMessage {
   $core.bool hasShow() => $_has(0);
   @$pb.TagNumber(1)
   void clearShow() => clearField(1);
+}
+
+class ReportSong extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ReportSong', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'artist')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'title')
+    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'explanation')
+    ..hasRequiredFields = false
+  ;
+
+  ReportSong._() : super();
+  factory ReportSong({
+    $core.String? artist,
+    $core.String? title,
+    $core.String? explanation,
+  }) {
+    final _result = create();
+    if (artist != null) {
+      _result.artist = artist;
+    }
+    if (title != null) {
+      _result.title = title;
+    }
+    if (explanation != null) {
+      _result.explanation = explanation;
+    }
+    return _result;
+  }
+  factory ReportSong.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ReportSong.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ReportSong clone() => ReportSong()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ReportSong copyWith(void Function(ReportSong) updates) => super.copyWith((message) => updates(message as ReportSong)) as ReportSong; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static ReportSong create() => ReportSong._();
+  ReportSong createEmptyInstance() => create();
+  static $pb.PbList<ReportSong> createRepeated() => $pb.PbList<ReportSong>();
+  @$core.pragma('dart2js:noInline')
+  static ReportSong getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ReportSong>(create);
+  static ReportSong? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get artist => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set artist($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasArtist() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearArtist() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get title => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set title($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasTitle() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearTitle() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get explanation => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set explanation($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasExplanation() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearExplanation() => clearField(3);
 }
 

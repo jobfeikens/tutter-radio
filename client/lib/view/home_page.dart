@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:tutter_radio/view/report_song_dialog.dart';
 import 'package:url_launcher_web/url_launcher_web.dart';
 import 'package:websafe_svg/websafe_svg.dart';
 
@@ -114,6 +115,24 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
           ]
         )
       ),
+      actions: [
+        DefaultMetadataBuilder(
+            builder: (BuildContext context, DefaultMetadata? metadata) =>
+                IconButton(
+                  icon: const Icon(Icons.flag),
+                  tooltip: 'Verkeerd nummer',
+                  onPressed: metadata != null
+                      ? () => showDialog(
+                          context: context,
+                          builder: (context) =>
+                              ReportSongDialog(metadata: metadata)).then((
+                      wasSent) =>
+                  wasSent == true ? ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Verkeerd nummer verstuurd'))) : null)
+                      : null,
+                )),
+        const SizedBox(width: 8),
+      ],
     );
   }
 
@@ -147,7 +166,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
           buildVolumeSlider(context),
           const Divider(),
           ListTile(
-            title: Text('Settings',
+            title: Text('Instellingen',
               style: Theme.of(context).textTheme.headline6,
             ),
           ),
@@ -158,7 +177,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
               AsyncSnapshot<bool?> showPotter
             ) {
               return CheckboxListTile(
-                title: const Text('Show Potter name'),
+                title: const Text('Toon Potter naam'),
                 value: showPotter.data ?? true,
                 onChanged: (value) {
                   ViewModel.of(context).setShowPotter(value ?? true);
@@ -169,7 +188,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
           ),
           const Divider(),
           ListTile(
-            title: Text('Active playlists',
+            title: Text('Actieve playlists',
               style: Theme.of(context).textTheme.headline6,
             ),
           ),
@@ -179,7 +198,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                 BuildContext context,
                 AsyncSnapshot<List<SelectedPlaylist>?> playlistSnapshot,
                 ) {
-              final playlists = playlistSnapshot.data ?? [];
+              final playlists = [...playlistSnapshot.data ?? const <SelectedPlaylist>[]];
+              playlists.sort((a, b) => a.name.compareTo(b.name));
 
               final songCount = playlists.fold<int>(0, (count, playlist) => count + (playlist.selected ? playlist.length : 0));
               return Column(
@@ -190,7 +210,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                     for (final playlist in playlists)
                       CheckboxListTile(
                         title: Text(playlist.name),
-                        subtitle: Text('${playlist.length} songs',
+                        subtitle: Text('${playlist.length} nummers',
                           style: Theme.of(context).textTheme.caption,
                         ),
                         value: playlist.selected,
@@ -231,8 +251,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
           ),
           const Divider(),
           buildFooter(context),
-          const Divider(),
-          buildPoweredBy(context),
+          // const Divider(),
+          // buildPoweredBy(context),
         ],
       ),
     );
@@ -412,7 +432,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                   children: [
                     if (showPotter.data ?? true)
                       TextSpan(
-                        text: ' - ${metadata.potter}'
+                        text: ' • ${metadata.potter}'
                       )
                   ]
                 )
@@ -443,7 +463,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
             },
           ),
           const SizedBox(height: 16),
-          ElevatedButton(onPressed: () => ViewModel.of(context).connect(), child: Text('Retry')),
+          ElevatedButton(onPressed: () => ViewModel.of(context).connect(), child: Text('Probeer opnieuw')),
         ],
       ),
     );
@@ -454,7 +474,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          ElevatedButton(onPressed: () => ViewModel.of(context).connect(), child: Text('Retry')),
+          ElevatedButton(onPressed: () => ViewModel.of(context).connect(), child: Text('Probeer opnieuw')),
         ],
       ),
     );

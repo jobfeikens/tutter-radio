@@ -15,7 +15,7 @@ class TutterRadioApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ViewModelProvider(viewModel,
         child: MaterialApp(
-          debugShowCheckedModeBanner: true,
+          debugShowCheckedModeBanner: false,
           title: 'Tutter radio',
           theme: themeData.copyWith(
             appBarTheme: const AppBarTheme(
@@ -43,11 +43,7 @@ class TutterRadioApp extends StatelessWidget {
               backgroundColor: menuColor
             ),
           ),
-          //home: const MyHomePage(),
-          initialRoute: '/radio',
-          routes: {
-            '/radio': (context) => const MyHomePage()
-          },
+          home: const MyHomePage(),
         )
     );
   }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:opus_dart/opus_dart.dart';
 import 'package:opus_flutter_web/opus_flutter_web.dart';
-import 'package:tutter_radio/model/implementation/web_notification_service.dart';
+import 'package:tutter_radio/model/implementation/web_media_controls.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 
 
@@ -16,9 +16,12 @@ Future<void> main() async {
 
   final client = WebSocketClient(uri: "wss://tutter.nl:8443");
   final player = WebAudioPlayer()..init();
-  final notificationService = WebNotificationService();
+  final mediaControls = WebMediaControls()..init();
 
-  final viewModel = ViewModel(client, player, notificationService); // digitalocean
+  final viewModel = ViewModel(client, player, mediaControls); // digitalocean
+
+  mediaControls.registerHandlers(viewModel.togglePause, viewModel.togglePause);
+
   //final viewModel = ViewModel(WebSocketClient(uri: "wss://localhost:8443"), player);
   await viewModel.init();
   viewModel.connect();

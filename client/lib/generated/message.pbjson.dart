@@ -15,6 +15,7 @@ const ServerBound$json = const {
     const {'1': 'play_pause', '3': 1, '4': 1, '5': 11, '6': '.PlayPause', '9': 0, '10': 'playPause'},
     const {'1': 'select_playlist', '3': 2, '4': 1, '5': 11, '6': '.SelectPlaylist', '9': 0, '10': 'selectPlaylist'},
     const {'1': 'show_potter_name', '3': 3, '4': 1, '5': 11, '6': '.ShowPotterName', '9': 0, '10': 'showPotterName'},
+    const {'1': 'report_song', '3': 4, '4': 1, '5': 11, '6': '.ReportSong', '9': 0, '10': 'reportSong'},
   ],
   '8': const [
     const {'1': 'type'},
@@ -22,7 +23,7 @@ const ServerBound$json = const {
 };
 
 /// Descriptor for `ServerBound`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List serverBoundDescriptor = $convert.base64Decode('CgtTZXJ2ZXJCb3VuZBIrCgpwbGF5X3BhdXNlGAEgASgLMgouUGxheVBhdXNlSABSCXBsYXlQYXVzZRI6Cg9zZWxlY3RfcGxheWxpc3QYAiABKAsyDy5TZWxlY3RQbGF5bGlzdEgAUg5zZWxlY3RQbGF5bGlzdBI7ChBzaG93X3BvdHRlcl9uYW1lGAMgASgLMg8uU2hvd1BvdHRlck5hbWVIAFIOc2hvd1BvdHRlck5hbWVCBgoEdHlwZQ==');
+final $typed_data.Uint8List serverBoundDescriptor = $convert.base64Decode('CgtTZXJ2ZXJCb3VuZBIrCgpwbGF5X3BhdXNlGAEgASgLMgouUGxheVBhdXNlSABSCXBsYXlQYXVzZRI6Cg9zZWxlY3RfcGxheWxpc3QYAiABKAsyDy5TZWxlY3RQbGF5bGlzdEgAUg5zZWxlY3RQbGF5bGlzdBI7ChBzaG93X3BvdHRlcl9uYW1lGAMgASgLMg8uU2hvd1BvdHRlck5hbWVIAFIOc2hvd1BvdHRlck5hbWUSLgoLcmVwb3J0X3NvbmcYBCABKAsyCy5SZXBvcnRTb25nSABSCnJlcG9ydFNvbmdCBgoEdHlwZQ==');
 @$core.Deprecated('Use clientBoundDescriptor instead')
 const ClientBound$json = const {
   '1': 'ClientBound',
@@ -161,3 +162,15 @@ const ShowPotterName$json = const {
 
 /// Descriptor for `ShowPotterName`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List showPotterNameDescriptor = $convert.base64Decode('Cg5TaG93UG90dGVyTmFtZRISCgRzaG93GAEgASgIUgRzaG93');
+@$core.Deprecated('Use reportSongDescriptor instead')
+const ReportSong$json = const {
+  '1': 'ReportSong',
+  '2': const [
+    const {'1': 'artist', '3': 1, '4': 1, '5': 9, '10': 'artist'},
+    const {'1': 'title', '3': 2, '4': 1, '5': 9, '10': 'title'},
+    const {'1': 'explanation', '3': 3, '4': 1, '5': 9, '10': 'explanation'},
+  ],
+};
+
+/// Descriptor for `ReportSong`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List reportSongDescriptor = $convert.base64Decode('CgpSZXBvcnRTb25nEhYKBmFydGlzdBgBIAEoCVIGYXJ0aXN0EhQKBXRpdGxlGAIgASgJUgV0aXRsZRIgCgtleHBsYW5hdGlvbhgDIAEoCVILZXhwbGFuYXRpb24=');

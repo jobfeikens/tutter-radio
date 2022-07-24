@@ -5,6 +5,10 @@ use futures::AsyncWriteExt;
 pub async fn report_song(artist: &str, title: &str, message: &str) -> anyhow::Result<()> {
     let dir = std::env::current_dir()?.join(Path::new("reports"));
 
+    if !dir.exists() {
+        File::create(&dir).await?;
+    }
+
     let mut song_path = dir.join(create_name(artist, title, None));
 
     let mut attempt = 0;

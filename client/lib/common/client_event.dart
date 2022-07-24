@@ -86,5 +86,5 @@ class EventShowPotterName implements ClientEvent {
   late final bool show;
 
   @override
-  void visit(ClientEventVisitor visitor)=> visitor.onShowPotterName(show);
+  void visit(ClientEventVisitor visitor) => visitor.onShowPotterName(show);
 }

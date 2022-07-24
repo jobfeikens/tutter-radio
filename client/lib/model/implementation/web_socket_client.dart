@@ -87,6 +87,12 @@ class WebSocketClient extends Client {
     message.showPotterName = pb.ShowPotterName(show: show));
   }
 
+  @override
+  void reportSong(String artist, String title, String report) {
+    _sendMessage((message) => message.reportSong =
+        pb.ReportSong(artist: artist, title: title, explanation: report));
+  }
+
   void _sendMessage(Function(pb.ServerBound) assign) {
     final message = pb.ServerBound();
     assign.call(message);

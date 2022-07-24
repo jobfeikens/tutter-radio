@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';import 'package:tutter_radio/common/client_event.dart';
 import 'package:tutter_radio/common/player.dart';
+import 'package:tutter_radio/model/abstract/media_controls.dart';
 import 'package:tutter_radio/model/abstract/notification_service.dart';
 import 'package:tutter_radio/model/persistence.dart';
 import 'package:rxdart/rxdart.dart';
@@ -17,9 +18,9 @@ class ViewModel implements ClientEventVisitor {
 
   final Client client;
   final Player player;
-  final NotificationService notificationService;
+  final MediaControls mediaControls;
 
-  ViewModel(this.client, this.player, this.notificationService);
+  ViewModel(this.client, this.player, this.mediaControls);
 
   static ViewModel of(BuildContext context) {
     return context
@@ -89,12 +90,17 @@ class ViewModel implements ClientEventVisitor {
     
     player.pauseResume(paused);
     client.pauseResume(paused);
+    mediaControls.pauseResume(paused);
   }
 
   void toggleSelectPlaylist(SelectedPlaylist playlist) {
     playlist.selected = !playlist.selected;
     playlists.add(playlists.value);
     client.selectPlaylist(playlists.value.indexOf(playlist), playlist.selected);
+  }
+
+  void reportSong(String artist, String title, String report) {
+    client.reportSong(artist, title, report);
   }
 
   void dispose() {
@@ -133,18 +139,15 @@ class ViewModel implements ClientEventVisitor {
   @override
   void onMetadata(Metadata? metadata) {
     this.metadata.add(metadata);
-
-    if (metadata != null) {
-      notificationService.showNotification(metadata);
-    }
+    _updateNotificationMetadata();
   }
 
   @override
   void onPauseResume(bool paused) {
     isPaused.add(paused);
-    
+
     player.pauseResume(paused);
-    client.pauseResume(paused);
+    mediaControls.pauseResume(paused);
   }
 
   @override
@@ -154,7 +157,16 @@ class ViewModel implements ClientEventVisitor {
 
   @override
   void onShowPotterName(bool show) {
-    // TODO: implement onShowPotterName
+    showPotterName.add(show);
+    _updateNotificationMetadata();
+  }
+
+  void _updateNotificationMetadata() {
+    final metadata = this.metadata.valueOrNull;
+
+    if (metadata != null) {
+      mediaControls.showMetadata(metadata, showPotterName.valueOrNull ?? false);
+    }
   }
 
   void _resetState() {

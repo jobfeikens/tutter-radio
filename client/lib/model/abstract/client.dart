@@ -9,4 +9,6 @@ abstract class Client {
   void selectPlaylist(int index, bool selected);
 
   void showPotterName(bool show);
+
+  void reportSong(String artist, String title, String report);
 }

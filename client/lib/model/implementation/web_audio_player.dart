@@ -1,8 +1,10 @@
+import 'dart:collection';
 import 'dart:math';
 import 'dart:typed_data';
 import 'dart:web_audio';
 
 import 'package:opus_dart/opus_dart.dart';
+import 'package:tutter_radio/common/audio_effect.dart';
 
 import '../abstract/player.dart';
 
@@ -15,12 +17,16 @@ class WebAudioPlayer implements Player {
   late final AudioContext _audioContext;
   late final GainNode _volumeNode;
 
+  double get _contextTime =>
+      _audioContext.currentTime!.toDouble();
+
   void init() {
     _decoder = BufferedOpusDecoder(sampleRate: sampleRate, channels: channels);
     _audioContext = AudioContext();
-    _volumeNode = _audioContext.createGain();
+    _audioContext.resume();
 
-    _volumeNode.connectNode(_audioContext.destination!);
+    _volumeNode = _audioContext.createGain()
+      ..connectNode(_audioContext.destination!);
   }
 
   @override
@@ -43,6 +49,8 @@ class WebAudioPlayer implements Player {
   final rightBuffer = Float32List(2880);
 
   double _frameTime = 0;
+
+  int i = 0;
 
   @override
   void playFrame(List<int> encodedData) {
@@ -69,15 +77,28 @@ class WebAudioPlayer implements Player {
     bufferSource.connectNode(_volumeNode);
     bufferSource.start(_frameTime);
 
-    _frameTime = max(
+    _frameTime = max<double>(
         _frameTime + frameDuration,
-        _audioContext.getOutputTimestamp()['contextTime']
+        _contextTime,
     );
+
+    // Round frame time to nearest tenth of a millisecond (4 decimal places)
+    _frameTime = double.parse(_frameTime.toStringAsFixed(4));
   }
 
   @override
   void dispose() {
     _audioContext.close();
     _decoder.destroy();
+  }
+
+  static Float32List createDistortionCurve([int k = 300]) {
+    final curve = Float32List(2880);
+
+    for (int i = 0; i < curve.length; i++) {
+      final x = i * 2 / curve.length - 1;
+      curve[i] = (pi + k) * x / (pi + k * x.abs());
+    }
+    return curve;
   }
 }

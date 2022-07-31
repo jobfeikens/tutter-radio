@@ -1,72 +1,84 @@
+use std::collections::HashMap;
 use rand::seq::SliceRandom;
 use rand::thread_rng;
 use crate::Playlist;
 
-#[derive(Clone)]
-struct MixedSong {
-    playlist: String,
+struct MixedPlaylist {
     index: usize,
+    random_order: Vec<usize>,
+    enabled: bool,
+}
+
+impl MixedPlaylist {
+    pub fn len(&self) -> usize {
+        self.random_order.len()
+    }
 }
 
 pub struct Mixer {
-    songs: Vec<MixedSong>,
-    enabled_playlists: Vec<String>,
-    index: usize,
+    playlists: HashMap<String, MixedPlaylist>,
+    playlist_keys: Vec<String>,  // Used to get a random playlist
 }
 
 impl Mixer {
     pub fn new() -> Self {
         Mixer {
-            songs: Vec::new(),
-            enabled_playlists: Vec::new(),
-            index: 0,
+            playlists: HashMap::new(),
+            playlist_keys: Vec::new(),
         }
     }
 
     pub fn has_next(&self) -> bool {
-        !self.songs.is_empty() && !self.enabled_playlists.is_empty()
+        self.playlists
+            .values()
+            .any(|playlist| playlist.enabled && !playlist.random_order.is_empty())
     }
 
     pub fn add(&mut self, playlist: &Playlist) {
-        for index in 0..playlist.len {
-            self.songs.push(
-                MixedSong {
-                    playlist: playlist.name.clone(),
-                    index,
-                }
-            );
-        }
-        self.songs.shuffle(&mut thread_rng());
-        self.enable(playlist);
+        let mut random_order: Vec<usize> = (0..playlist.len).collect();
+        random_order.shuffle(&mut thread_rng());
+
+        self.playlists.insert(
+            playlist.name.clone(),
+            MixedPlaylist { index: 0, random_order, enabled: true });
+
+        self.playlist_keys.push(playlist.name.clone());
     }
 
     pub fn enable(&mut self, playlist: &Playlist) {
-        self.disable(playlist);
-        self.enabled_playlists.push(playlist.name.clone());
+        if let Some(playlist) = self.playlists.get_mut(&playlist.name) {
+            playlist.enabled = true;
+        }
     }
 
     pub fn disable(&mut self, playlist: &Playlist) {
-        self.enabled_playlists.retain(|other| other != &playlist.name);
+        if let Some(playlist) = self.playlists.get_mut(&playlist.name) {
+            playlist.enabled = false;
+        }
     }
 
     pub fn next(&mut self) -> Option<(String, usize)> {
-        let start_index = self.index;
+        if !self.has_next() {
+            return None
+        }
+        self.playlist_keys.shuffle(&mut thread_rng());  // Select a random playlist
 
-        loop {
-            if self.index < self.songs.len() {
-                let song = self.songs[self.index].clone();
+        for key in &self.playlist_keys {
 
-                self.index += 1;
+            if let Some(playlist) = self.playlists.get_mut(key) {
 
-                if self.enabled_playlists.contains(&song.playlist) {
-                    return Some((song.playlist, song.index));
+                if !playlist.enabled || playlist.len() == 0 {
+                    continue
                 }
-            } else {
-                self.index = 0;
-            }
-            if self.index == start_index {
-                return None;
+                if playlist.index + 1 >= playlist.len() {
+                    playlist.index = 0;
+                    playlist.random_order.shuffle(&mut thread_rng())
+                } else {
+                    playlist.index += 1;
+                }
+                return Some((key.to_string(), playlist.index))
             }
         }
+        return None
     }
 }

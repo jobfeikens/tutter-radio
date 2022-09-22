@@ -245,6 +245,10 @@ impl Player {
             let mut events = vec![];
             let listeners = state.senders.len() + 1;
 
+            if (listeners == 1 && state.is_paused)  {
+                state.is_paused = false;
+            }
+
             // Add initial player state to the channel
             events.push(PlayPause(state.is_paused));
             events.push(Listeners(listeners));

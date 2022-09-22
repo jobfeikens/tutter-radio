@@ -1,4 +1,4 @@
-import 'package:tutter_radio/common/common.dart';
+import 'dart:typed_data';
 
 abstract class Player {
 
@@ -6,7 +6,7 @@ abstract class Player {
 
   void pauseResume(bool paused);
 
-  void playFrame(List<int> encodedFrame);
+  Future<void> playFrame(List<int> encodedFrame);
 
   void dispose();
 }

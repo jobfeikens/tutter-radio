@@ -16,7 +16,7 @@ use tokio::time::{sleep_until, Instant};
 use PlayerEvent::*;
 
 // Buffer holds n or less seconds worth of opus frames
-const BUFFER_SIZE: Duration = Duration::from_secs(1);
+const BUFFER_SIZE: Duration = Duration::from_secs(10);
 
 #[derive(Clone, Debug)]
 pub enum PlayerEvent {
@@ -245,7 +245,7 @@ impl Player {
             let mut events = vec![];
             let listeners = state.senders.len() + 1;
 
-            if (listeners == 1 && state.is_paused)  {
+            if listeners == 1 && state.is_paused {
                 state.is_paused = false;
             }
 

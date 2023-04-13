@@ -6,19 +6,19 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-async-trait = "0.1.52"
-futures = "0.3.21"
-simple_logger = "2.1.0"
-log = "0.4.14"
-tokio-native-tls = "0.3.0"
-native-tls = "0.2.10"
-tokio = { version = "1.17.0", features = ["full"] }
-tokio-tungstenite = { version = "0.17.1", features = ["native-tls"] }
-protobuf = { version = "3.1.0", features = ["bytes"]}
-async-channel = "1.6.1"
-async-std = { version = "1.10.0", features = ["unstable"] }
+async-trait = "0.1.68"
+futures = "0.3.28"
+simple_logger = "4.1.0"
+log = "0.4.17"
+tokio-native-tls = "0.3.1"
+native-tls = "0.2.11"
+tokio = { version = "1.27.0", features = ["full"] }
+tokio-tungstenite = { version = "0.18.0", features = ["native-tls"] }
+protobuf = { version = "3.2.0", features = ["bytes"]}
+async-channel = "1.8.0"
+async-std = { version = "1.12.0", features = ["unstable"] }
 byteorder = "1.4.3"
-anyhow = "1.0.56"
+anyhow = "1.0.70"
 rand = "0.8.5"
 ogg = { git = "https://github.com/RustAudio/ogg", features = ["async"] }
-clap = { version = "3.1.7", features = ["derive"] }
+clap = { version = "4.2.1", features = ["derive"] }

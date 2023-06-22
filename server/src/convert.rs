@@ -33,10 +33,11 @@ pub fn convert_event(event: PlayerEvent) -> pb::ClientBound {
             select_playlist.selected = selected;
             message.set_select_playlist(select_playlist);
         }
-        PlayerEvent::Metadata(comment_data) => {
+        PlayerEvent::Metadata(metadata) => {
             let mut comment = pb::Comment::new();
 
-            if let Some(comment_data) = comment_data {
+            if let Some((song_id, comment_data)) = metadata {
+                comment.song_id = song_id;
                 for (key, value) in comment_data.entries {
                     let mut entry = pb::CommentEntry::new();
                     entry.key = key;
@@ -51,9 +52,10 @@ pub fn convert_event(event: PlayerEvent) -> pb::ClientBound {
         PlayerEvent::Ready => {
             message.set_ready(pb::Ready::default());
         }
-        PlayerEvent::OpusData(frame) => {
+        PlayerEvent::OpusData(song_id, frame) => {
             let mut opus_data = pb::OpusData::new();
 
+            opus_data.song_id = song_id;
             opus_data.data = frame.data.clone();
             opus_data.duration = frame.duration.as_micros() as u32;
 

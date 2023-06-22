@@ -1,11 +1,10 @@
 use std::collections::HashMap;
 use std::ffi::{OsString};
 use std::path::Path;
-use crate::common::{MusicSource, Playlist, Result};
+use crate::common::{MusicSource, Playlist, Result, Song};
 use async_trait::async_trait;
 use async_std::fs;
 use futures::TryStreamExt;
-use tokio::io::AsyncRead;
 
 
 pub struct LocalSource {
@@ -71,7 +70,7 @@ impl MusicSource for LocalSource {
         Ok(playlists)
     }
 
-    async fn load_song(&mut self, playlist: &str, index: &usize) -> Result<Box<dyn AsyncRead + Unpin>> {
+    async fn load_song(&mut self, playlist: &str, index: &usize) -> Result<Song> {
         self.initialize().await?;
 
         let songs = self.files.get(playlist).unwrap();
@@ -80,7 +79,7 @@ impl MusicSource for LocalSource {
         let path = Path::new(&self.path).join(playlist).join(song);
 
         let x = tokio::fs::File::open(path).await?;
-        Ok(Box::new(x))
+        Ok(Song { id: song.to_string(), read: Box::new(x) })
     }
 }
 

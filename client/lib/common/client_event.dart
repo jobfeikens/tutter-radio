@@ -76,7 +76,7 @@ class EventPauseResume implements ClientEvent {
 }
 
 class EventData implements ClientEvent {
-  late final List<int> dat.a;
+  late final List<int> data;
   late final String songId;
 
   @override

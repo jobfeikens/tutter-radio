@@ -6,7 +6,9 @@ abstract class Player {
 
   void pauseResume(bool paused);
 
-  Future<void> playFrame(List<int> encodedFrame);
+  Future<void> playFrame(List<int> encodedFrame, String songId);
+
+  Stream<String> getCurrentSongId();
 
   void dispose();
 }

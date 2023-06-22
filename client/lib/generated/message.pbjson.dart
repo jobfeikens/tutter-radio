@@ -3,7 +3,7 @@
 //  source: message.proto
 //
 // @dart = 2.12
-// ignore_for_file: annotate_overrides,camel_case_types,unnecessary_const,non_constant_identifier_names,library_prefixes,unused_import,unused_shown_name,return_of_invalid_type,unnecessary_this,prefer_final_fields,deprecated_member_use_from_same_package
+// ignore_for_file: annotate_overrides,camel_case_types,constant_identifier_names,deprecated_member_use_from_same_package,directives_ordering,library_prefixes,non_constant_identifier_names,prefer_final_fields,return_of_invalid_type,unnecessary_const,unnecessary_import,unnecessary_this,unused_import,unused_shown_name
 
 import 'dart:core' as $core;
 import 'dart:convert' as $convert;
@@ -115,11 +115,12 @@ const Comment$json = const {
   '2': const [
     const {'1': 'noComment', '3': 1, '4': 1, '5': 8, '10': 'noComment'},
     const {'1': 'entries', '3': 2, '4': 3, '5': 11, '6': '.CommentEntry', '10': 'entries'},
+    const {'1': 'song_id', '3': 3, '4': 1, '5': 9, '10': 'songId'},
   ],
 };
 
 /// Descriptor for `Comment`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List commentDescriptor = $convert.base64Decode('CgdDb21tZW50EhwKCW5vQ29tbWVudBgBIAEoCFIJbm9Db21tZW50EicKB2VudHJpZXMYAiADKAsyDS5Db21tZW50RW50cnlSB2VudHJpZXM=');
+final $typed_data.Uint8List commentDescriptor = $convert.base64Decode('CgdDb21tZW50EhwKCW5vQ29tbWVudBgBIAEoCFIJbm9Db21tZW50EicKB2VudHJpZXMYAiADKAsyDS5Db21tZW50RW50cnlSB2VudHJpZXMSFwoHc29uZ19pZBgDIAEoCVIGc29uZ0lk');
 @$core.Deprecated('Use commentEntryDescriptor instead')
 const CommentEntry$json = const {
   '1': 'CommentEntry',
@@ -137,11 +138,12 @@ const OpusData$json = const {
   '2': const [
     const {'1': 'data', '3': 1, '4': 1, '5': 12, '10': 'data'},
     const {'1': 'duration', '3': 2, '4': 1, '5': 13, '10': 'duration'},
+    const {'1': 'song_id', '3': 3, '4': 1, '5': 9, '10': 'songId'},
   ],
 };
 
 /// Descriptor for `OpusData`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List opusDataDescriptor = $convert.base64Decode('CghPcHVzRGF0YRISCgRkYXRhGAEgASgMUgRkYXRhEhoKCGR1cmF0aW9uGAIgASgNUghkdXJhdGlvbg==');
+final $typed_data.Uint8List opusDataDescriptor = $convert.base64Decode('CghPcHVzRGF0YRISCgRkYXRhGAEgASgMUgRkYXRhEhoKCGR1cmF0aW9uGAIgASgNUghkdXJhdGlvbhIXCgdzb25nX2lkGAMgASgJUgZzb25nSWQ=');
 @$core.Deprecated('Use opusFrameDescriptor instead')
 const OpusFrame$json = const {
   '1': 'OpusFrame',

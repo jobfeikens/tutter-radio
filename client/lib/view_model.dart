@@ -1,12 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';import 'package:tutter_radio/common/client_event.dart';
+import 'package:flutter/foundation.dart';
+import 'package:tutter_radio/common/client_event.dart';
 import 'package:tutter_radio/common/player.dart';
 import 'package:tutter_radio/model/abstract/media_controls.dart';
-import 'package:tutter_radio/model/abstract/notification_service.dart';
 import 'package:tutter_radio/model/persistence.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:collection/collection.dart';
 
 import 'common/constants.dart';
 import 'common/connection_state.dart';
@@ -29,15 +30,18 @@ class ViewModel implements ClientEventVisitor {
   }
 
   final _persistence = Persistence();
+  final _metadataCache = MetadataCache();
 
   final volume = BehaviorSubject<double>();
   final showPotterName = BehaviorSubject<bool>();
   final listenerCount = BehaviorSubject<int?>();
   final isPaused = BehaviorSubject<bool?>();
   final playlists = BehaviorSubject<List<SelectedPlaylist>>();
-  final metadata = BehaviorSubject<Metadata?>();
   final error = BehaviorSubject<Object?>();
   final connectionState = BehaviorSubject<ClientConnectionState>();
+
+  Stream<Metadata?> get metadata =>
+      player.getCurrentSongId().map(_metadataCache.get);
 
   Future<void> init() async {
     await _persistence.init();
@@ -127,8 +131,8 @@ class ViewModel implements ClientEventVisitor {
   }
 
   @override
-  void onData(List<int> data) {
-    player.playFrame(data);
+  void onData(List<int> data, String songId) {
+    player.playFrame(data, songId);
   }
 
   @override
@@ -137,8 +141,8 @@ class ViewModel implements ClientEventVisitor {
   }
 
   @override
-  void onMetadata(Metadata? metadata) {
-    this.metadata.add(metadata);
+  void onMetadata(Metadata metadata) {
+    _metadataCache.add(metadata);
     _updateNotificationMetadata();
   }
 
@@ -162,11 +166,11 @@ class ViewModel implements ClientEventVisitor {
   }
 
   void _updateNotificationMetadata() {
-    final metadata = this.metadata.valueOrNull;
-
-    if (metadata != null) {
-      mediaControls.showMetadata(metadata, showPotterName.valueOrNull ?? false);
-    }
+    // final metadata = this.metadata.valueOrNull;
+    //
+    // if (metadata != null) {
+    //   mediaControls.showMetadata(metadata, showPotterName.valueOrNull ?? false);
+    // }
   }
 
   void _resetState() {
@@ -174,8 +178,25 @@ class ViewModel implements ClientEventVisitor {
     listenerCount.add(0);
     isPaused.add(true);
     playlists.add([]);
-    metadata.add(null);
+    // metadata.add(null);
     error.add(null);
     connectionState.add(ClientConnectionState.disconnected);
+  }
+}
+
+class MetadataCache {
+  static const int STORE_LAST = 3;
+  final _cache = <Metadata>[];
+
+  void add(Metadata metadata) {
+    _cache.add(metadata);
+    if (_cache.length > STORE_LAST) {
+      _cache.removeAt(0);
+    }
+  }
+
+  Metadata? get(String songId) {
+    return _cache.firstWhereOrNull(
+            (metadata) => metadata.songId == songId);
   }
 }

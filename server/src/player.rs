@@ -28,11 +28,11 @@ pub enum PlayerEvent {
     AddPlaylist(String, usize),  // name length
     SelectPlaylist(usize, bool), // index, selected (selected by default)
 
-    Metadata(Option<VorbisCommentData>),
+    Metadata(String, Option<VorbisCommentData>),
 
     Ready,
 
-    OpusData(OpusFrame),
+    OpusData(String, OpusFrame),
     ShowPotterName(bool),
 }
 
@@ -133,6 +133,7 @@ impl Player {
 
                 reader = Some(PacketReader::new(read));
             }
+
             match reader.as_mut().unwrap().try_next().await? {
                 None => {
                     reader = None;

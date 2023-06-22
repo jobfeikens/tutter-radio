@@ -125,7 +125,7 @@ class WebSocketClient extends Client {
         final event = EventMetadata();
 
         if (message.comment.hasNoComment()) {
-          event.metadata = null;
+          event.metadata = Metadata(message.comment.songId, {});
 
         } else {
           final entries = <String, String>{};
@@ -133,7 +133,7 @@ class WebSocketClient extends Client {
           for (final entry in message.comment.entries) {
             entries[entry.key] = entry.value;
           }
-          event.metadata = Metadata(entries);
+          event.metadata = Metadata(message.comment.songId, entries);
         }
         return event;
 
@@ -141,7 +141,9 @@ class WebSocketClient extends Client {
         return EventReady();
 
       case pb.ClientBound_Type.data:
-        return EventData()..data = message.data.data;
+        return EventData()
+          ..data = message.data.data
+          ..songId = message.data.songId;
         
       case pb.ClientBound_Type.showPotterName:
         return EventShowPotterName()..show = message.showPotterName.show;

@@ -67,8 +67,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
-    return SubjectBuilder(
-      subject: (viewModel) => viewModel.metadata,
+    return StreamBuilder(
+      stream: ViewModel.of(context).metadata,
       builder: (
         BuildContext context,
         AsyncSnapshot<Metadata?> metadata,
@@ -532,7 +532,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
         height: 20,
         width: 20,
         fit: BoxFit.fitHeight,
-        color: color,
+        colorFilter: color != null ? ColorFilter.mode(color, BlendMode.dst) : null,
       ),
       visualDensity: VisualDensity.comfortable,
     );

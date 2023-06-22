@@ -17,9 +17,10 @@ class SelectedPlaylist {
 }
 
 class Metadata {
+  final String songId;
   final Map<String, String> entries;
 
-  Metadata(Map<String, String> entries):
+  Metadata(this.songId, Map<String, String> entries):
         entries = entries.map((key, value) => MapEntry(key.toLowerCase(), value));
 
   String get artist {

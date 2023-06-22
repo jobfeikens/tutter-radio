@@ -53,6 +53,7 @@ message SelectPlaylist {
 message Comment {
   bool noComment = 1;
   repeated CommentEntry entries = 2;
+  string song_id = 3;
 }
 
 message CommentEntry {
@@ -63,6 +64,7 @@ message CommentEntry {
 message OpusData {
   bytes data = 1;
   uint32 duration = 2;
+  string song_id = 3;
 }
 
 message OpusFrame {

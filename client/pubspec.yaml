@@ -4,30 +4,26 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 0.2.0+1
 
 environment:
-  sdk: "2.17.3"
-  flutter: "3.0.2"
+  sdk: ">=2.17.5 <3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
 
-  async: 2.8.2
+  async: 2.11.0
   web_ffi: 0.7.2
   opus_dart: 3.0.0
   opus_flutter_web: 3.0.1
-  websafe_svg: 2.1.1
+  websafe_svg: 3.0.0+4
   url_launcher_web: 2.0.9
-  protobuf: 2.0.1
-  rxdart: 0.27.3
-  web_socket_channel: 2.1.0
-  http: 0.13.4
-  shared_preferences: 2.0.13
-  image: 3.2.0
+  protobuf: 2.1.0
+  rxdart: 0.27.7
+  web_socket_channel: 2.4.0
+  http: 0.13.5
+  shared_preferences: 2.1.0
+  image: 4.0.15
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
-
   flutter_lints: ^1.0.0
 
 flutter:

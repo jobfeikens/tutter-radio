@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'dart:web_audio';
 
 import 'package:opus_dart/opus_dart.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:tutter_radio/common/audio_effect.dart';
 
 import '../abstract/player.dart';
@@ -12,7 +13,8 @@ const sampleRate = 48000;
 const channels = 2;
 
 class WebAudioPlayer implements Player {
-  
+  final _currentSongIdSubject = BehaviorSubject<String>();
+
   late final BufferedOpusDecoder _decoder;
   late final AudioContext _audioContext;
   late final GainNode _volumeNode;
@@ -53,7 +55,7 @@ class WebAudioPlayer implements Player {
   int i = 0;
 
   @override
-  void playFrame(List<int> encodedData) {
+  Future<void> playFrame(List<int> encodedData, String songId) async {
     _decoder.inputBuffer.setAll(0, encodedData);
     _decoder.inputBufferIndex = encodedData.length;
 
@@ -77,6 +79,12 @@ class WebAudioPlayer implements Player {
     bufferSource.connectNode(_volumeNode);
     bufferSource.start(_frameTime);
 
+    bufferSource.addEventListener("ended",
+            (event) {
+              _currentSongIdSubject.add(songId);
+              print('ended $songId id');
+            });
+
     _frameTime = max<double>(
         _frameTime + frameDuration,
         _contextTime,
@@ -84,6 +92,11 @@ class WebAudioPlayer implements Player {
 
     // Round frame time to nearest tenth of a millisecond (4 decimal places)
     _frameTime = double.parse(_frameTime.toStringAsFixed(4));
+  }
+
+  @override
+  Stream<String> getCurrentSongId() {
+    return _currentSongIdSubject.distinct();
   }
 
   @override

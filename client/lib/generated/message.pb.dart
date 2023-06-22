@@ -3,7 +3,7 @@
 //  source: message.proto
 //
 // @dart = 2.12
-// ignore_for_file: annotate_overrides,camel_case_types,unnecessary_const,non_constant_identifier_names,library_prefixes,unused_import,unused_shown_name,return_of_invalid_type,unnecessary_this,prefer_final_fields
+// ignore_for_file: annotate_overrides,camel_case_types,constant_identifier_names,directives_ordering,library_prefixes,non_constant_identifier_names,prefer_final_fields,return_of_invalid_type,unnecessary_const,unnecessary_import,unnecessary_this,unused_import,unused_shown_name
 
 import 'dart:core' as $core;
 
@@ -657,6 +657,7 @@ class Comment extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Comment', createEmptyInstance: create)
     ..aOB(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'noComment', protoName: 'noComment')
     ..pc<CommentEntry>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'entries', $pb.PbFieldType.PM, subBuilder: CommentEntry.create)
+    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'songId')
     ..hasRequiredFields = false
   ;
 
@@ -664,6 +665,7 @@ class Comment extends $pb.GeneratedMessage {
   factory Comment({
     $core.bool? noComment,
     $core.Iterable<CommentEntry>? entries,
+    $core.String? songId,
   }) {
     final _result = create();
     if (noComment != null) {
@@ -671,6 +673,9 @@ class Comment extends $pb.GeneratedMessage {
     }
     if (entries != null) {
       _result.entries.addAll(entries);
+    }
+    if (songId != null) {
+      _result.songId = songId;
     }
     return _result;
   }
@@ -706,6 +711,15 @@ class Comment extends $pb.GeneratedMessage {
 
   @$pb.TagNumber(2)
   $core.List<CommentEntry> get entries => $_getList(1);
+
+  @$pb.TagNumber(3)
+  $core.String get songId => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set songId($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasSongId() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearSongId() => clearField(3);
 }
 
 class CommentEntry extends $pb.GeneratedMessage {
@@ -773,6 +787,7 @@ class OpusData extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'OpusData', createEmptyInstance: create)
     ..a<$core.List<$core.int>>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data', $pb.PbFieldType.OY)
     ..a<$core.int>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'duration', $pb.PbFieldType.OU3)
+    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'songId')
     ..hasRequiredFields = false
   ;
 
@@ -780,6 +795,7 @@ class OpusData extends $pb.GeneratedMessage {
   factory OpusData({
     $core.List<$core.int>? data,
     $core.int? duration,
+    $core.String? songId,
   }) {
     final _result = create();
     if (data != null) {
@@ -787,6 +803,9 @@ class OpusData extends $pb.GeneratedMessage {
     }
     if (duration != null) {
       _result.duration = duration;
+    }
+    if (songId != null) {
+      _result.songId = songId;
     }
     return _result;
   }
@@ -828,6 +847,15 @@ class OpusData extends $pb.GeneratedMessage {
   $core.bool hasDuration() => $_has(1);
   @$pb.TagNumber(2)
   void clearDuration() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get songId => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set songId($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasSongId() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearSongId() => clearField(3);
 }
 
 class OpusFrame extends $pb.GeneratedMessage {

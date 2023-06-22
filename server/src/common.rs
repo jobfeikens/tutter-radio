@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 
-use tokio::io::AsyncRead;
+use tokio::io::{AsyncRead};
 
 pub type Result<T> = anyhow::Result<T>;
 
@@ -10,7 +10,10 @@ pub struct Playlist {
     pub len: usize,
 }
 
-pub type Song = Box<dyn AsyncRead + Unpin>;
+pub struct Song {
+    pub id: String,
+    pub read: Box<dyn AsyncRead + Unpin>,
+}
 
 #[async_trait]
 pub trait MusicSource {

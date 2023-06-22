@@ -1,4 +1,4 @@
-use crate::common::MusicSource;
+use crate::common::{MusicSource};
 use crate::mixer::Mixer;
 use crate::util::opus_packet::{read_packet, OggData, OpusFrame, VorbisCommentData};
 use crate::Playlist;
@@ -12,6 +12,7 @@ use std::cmp::max;
 use std::collections::VecDeque;
 use std::sync::Arc;
 use std::time::Duration;
+use tokio::io::AsyncRead;
 use tokio::time::{sleep_until, Instant};
 use PlayerEvent::*;
 
@@ -28,7 +29,7 @@ pub enum PlayerEvent {
     AddPlaylist(String, usize),  // name length
     SelectPlaylist(usize, bool), // index, selected (selected by default)
 
-    Metadata(String, Option<VorbisCommentData>),
+    Metadata(Option<(String, VorbisCommentData)>),
 
     Ready,
 
@@ -39,7 +40,7 @@ pub enum PlayerEvent {
 pub struct State {
     is_paused: bool,
     senders: Vec<Sender<PlayerEvent>>,
-    metadata: Option<VorbisCommentData>,
+    metadata: Option<(String, VorbisCommentData)>,
     playlists: Vec<(Playlist, bool)>,
     show_potter_name: bool,
 
@@ -64,6 +65,11 @@ impl Default for State {
 #[derive(Clone)]
 pub struct Player {
     state: Arc<(Mutex<State>, Condvar)>,
+}
+
+struct LoadedSong {
+    song_id: String,
+    reader: PacketReader<Box<dyn AsyncRead+Unpin>>,
 }
 
 impl Player {
@@ -102,12 +108,12 @@ impl Player {
     }
 
     async fn play_songs(&self, source: &mut dyn MusicSource) -> Result<()> {
-        let mut reader = None;
+        let mut loaded_song: Option<LoadedSong> = None;
 
         let mut frame_time = Instant::now();
 
         loop {
-            if reader.is_none() {
+            if loaded_song.is_none() {
                 let mut next = self.use_state(|mut state| {
                     let next = state.mixer.next();
 
@@ -129,14 +135,18 @@ impl Player {
 
                 let (playlist, index) = next.unwrap();
 
-                let read = source.load_song(&playlist, &index).await?;
+                let song = source.load_song(&playlist, &index).await?;
 
-                reader = Some(PacketReader::new(read));
+                loaded_song = Some(LoadedSong {
+                    song_id: song.id,
+                    reader: PacketReader::new(song.read),
+                });
             }
+            let some_loaded_song = loaded_song.as_mut().unwrap();
 
-            match reader.as_mut().unwrap().try_next().await? {
+            match some_loaded_song.reader.try_next().await? {
                 None => {
-                    reader = None;
+                    loaded_song = None;
                 }
                 Some(packet) => {
                     match read_packet(packet.data) {
@@ -145,10 +155,10 @@ impl Player {
                             continue;
                         }
                         OggData::VorbisComment(comment) => {
-                            self.send_metadata(comment).await;
+                            self.send_metadata(&some_loaded_song.song_id,comment).await;
                         }
                         OggData::Opus(frame) => {
-                            frame_time = self.send_frame(frame, frame_time).await;
+                            frame_time = self.send_frame(&some_loaded_song.song_id, frame, frame_time).await;
                         }
                     }
                 }
@@ -156,24 +166,24 @@ impl Player {
         }
     }
 
-    async fn send_metadata(&self, metadata: VorbisCommentData) {
+    async fn send_metadata(&self, song_id: &str, metadata: VorbisCommentData) {
         self.use_state(|mut state| {
-            send_event(&mut state.senders, Metadata(Some(metadata.clone())));
+            send_event(&mut state.senders, Metadata(Some((song_id.to_string(), metadata.clone()))));
 
-            state.metadata = Some(metadata);
+            state.metadata = Some((song_id.to_string(), metadata));
         })
         .await;
     }
 
-    async fn send_frame(&self, frame: OpusFrame, frame_time: Instant) -> Instant {
+    async fn send_frame(&self, song_id: &str, frame: OpusFrame, frame_time: Instant) -> Instant {
         sleep_until(frame_time).await;
 
         self.use_state_when(
             |state| !state.is_paused && state.senders.len() > 0,
             |mut state| {
-                send_event(&mut state.senders, OpusData(frame.clone()));
+                send_event(&mut state.senders, OpusData(song_id.to_string(), frame.clone()));
 
-                if !state.buffer.push(frame.clone()) {
+                if !state.buffer.push(song_id,frame.clone()) {
                     // Immediately send the next frame if the buffer isn't full
                     Instant::now()
                 } else {
@@ -259,11 +269,13 @@ impl Player {
                     events.push(SelectPlaylist(index, false));
                 }
             }
+
             events.push(Metadata(state.metadata.clone()));
             events.push(ShowPotterName(state.show_potter_name));
 
             for frame in state.buffer.frames.iter() {
-                events.push(OpusData(frame.clone()))
+                let (song_id, frame) = frame.clone();
+                events.push(OpusData(song_id, frame))
             }
 
             events.push(Ready);
@@ -310,7 +322,7 @@ impl Player {
 struct FrameBuffer {
     capacity: Duration,
     contents: Duration,
-    frames: VecDeque<OpusFrame>,
+    frames: VecDeque<(String, OpusFrame)>,
     capacity_reached: bool,
 }
 
@@ -324,13 +336,13 @@ impl FrameBuffer {
         }
     }
 
-    fn push(&mut self, frame: OpusFrame) -> bool {
+    fn push(&mut self, song_id: &str, frame: OpusFrame) -> bool {
         while self.contents >= self.capacity {
-            self.contents -= self.frames.pop_front().unwrap().duration;
+            self.contents -= self.frames.pop_front().unwrap().1.duration;
         }
 
         self.contents += frame.duration;
-        self.frames.push_back(frame);
+        self.frames.push_back((song_id.to_string(), frame));
 
         if self.contents >= self.capacity {
             self.capacity_reached = true;

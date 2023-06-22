@@ -80,10 +80,7 @@ class WebAudioPlayer implements Player {
     bufferSource.start(_frameTime);
 
     bufferSource.addEventListener("ended",
-            (event) {
-              _currentSongIdSubject.add(songId);
-              print('ended $songId id');
-            });
+            (event) => _currentSongIdSubject.add(songId));
 
     _frameTime = max<double>(
         _frameTime + frameDuration,

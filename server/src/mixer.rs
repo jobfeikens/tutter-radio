@@ -76,7 +76,7 @@ impl Mixer {
                 } else {
                     playlist.index += 1;
                 }
-                return Some((key.to_string(), playlist.index))
+                return Some((key.to_string(), playlist.random_order[playlist.index]))
             }
         }
         return None

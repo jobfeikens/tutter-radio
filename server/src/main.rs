@@ -1,4 +1,5 @@
 use std::env;
+use std::sync::{Arc, Mutex};
 use async_std::fs::File;
 use futures::{AsyncReadExt, SinkExt, StreamExt};
 mod common;
@@ -22,7 +23,7 @@ use generated::message as pb;
 use protobuf::Message as PbMessage;
 use tokio::net::{TcpListener, TcpStream};
 use clap::Parser;
-use native_tls::{Identity};
+use native_tls::Identity;
 use tokio_native_tls::{TlsAcceptor, TlsStream};
 
 
@@ -33,6 +34,7 @@ use tokio_tungstenite::{
     },
     WebSocketStream
 };
+use tokio_tungstenite::tungstenite::handshake::server::{ErrorResponse, Request, Response};
 
 use crate::convert::convert_event;
 use crate::report::report_song;
@@ -48,7 +50,7 @@ async fn main() -> anyhow::Result<()> {
         .unwrap_or_else(|| env::current_dir().unwrap().to_str().unwrap().to_string());
 
     let certificate_path = args.certificate_path
-        .unwrap_or_else(|| "~/identity.p12".to_string());
+        .unwrap_or_else(|| "identity.p12".to_string());
 
     SimpleLogger::new().with_level(LevelFilter::Info).init()?;
 
@@ -120,13 +122,42 @@ impl Server {
     }
 }
 
-async fn accept_connection(connection_id: usize, stream: TlsStream<TcpStream>, player: Player) -> anyhow::Result<()> {
+#[derive(Clone)]
+struct RequestInterceptor {
+    is_spectator: Arc<Mutex<bool>>,
+}
 
-    match tokio_tungstenite::accept_async(stream).await {
+impl tungstenite::handshake::server::Callback for RequestInterceptor {
+    fn on_request(self, request: &Request, response: Response) -> Result<Response, ErrorResponse> {
+        println!("CONTAINS {}", request.uri().to_string().contains("spectator=true"));
+        if request.uri().to_string().contains("spectator=true") {
+            *self.is_spectator.lock().unwrap() = true;
+        }
+        Ok(response)
+    }
+}
+
+impl RequestInterceptor {
+    fn new() -> Self {
+        RequestInterceptor {
+            is_spectator: Arc::new(Mutex::new(false))
+        }
+    }
+    fn is_spectator(&self) -> bool {
+        *self.is_spectator.lock().unwrap()
+    }
+}
+
+async fn accept_connection(connection_id: usize, stream: TlsStream<TcpStream>, player: Player) -> anyhow::Result<()> {
+    let header_interceptor = RequestInterceptor::new();
+
+    match tokio_tungstenite::accept_hdr_async(stream, header_interceptor.clone()).await {
         Ok(stream) => {
+            println!("is spectatotr: {}", header_interceptor.is_spectator());
+
             // Run connection in separate task
             tokio::spawn(async move {
-                run_connection(connection_id, stream, player).await;
+                run_connection(connection_id, stream, player, header_interceptor.is_spectator()).await;
             });
         }
         Err(err) => {
@@ -139,12 +170,13 @@ async fn accept_connection(connection_id: usize, stream: TlsStream<TcpStream>, p
 async fn run_connection(
     connection_id: usize,
     stream: WebSocketStream<TlsStream<TcpStream>>,
-    player: Player
+    player: Player,
+    is_spectator: bool,
 ) {
     let (sink, stream) = stream.split();
 
     let _ = try_join!(
-        send_connection(sink, player.clone()),
+        send_connection(sink, player.clone(), is_spectator),
         receive_connection(stream, player.clone()),
     );
     log::info!("Connection {} disconnected", connection_id);
@@ -153,8 +185,9 @@ async fn run_connection(
 async fn send_connection(
     mut stream: SplitSink<WebSocketStream<TlsStream<TcpStream>>, tungstenite::Message>,
     player: Player,
+    is_spectator: bool,
 ) -> anyhow::Result<()> {
-    let receiver = player.observe().await;
+    let receiver = player.observe(is_spectator).await;
 
     loop {
         let event = convert_event(receiver.recv().await?);

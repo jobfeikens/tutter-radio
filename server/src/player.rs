@@ -39,7 +39,7 @@ pub enum PlayerEvent {
 
 pub struct State {
     is_paused: bool,
-    senders: Vec<Sender<PlayerEvent>>,
+    senders: Vec<(Sender<PlayerEvent>, bool)>,  // bool = is_spectator
     metadata: Option<(String, VorbisCommentData)>,
     playlists: Vec<(Playlist, bool)>,
     show_potter_name: bool,
@@ -91,7 +91,7 @@ impl Player {
         // Load playlists
         self.use_state(|mut state| {
             state.playlists.clear();
-            send_event(&mut state.senders, ClearPlaylists());
+            send_event(&mut state.senders, ClearPlaylists(), true);
 
             for playlist in playlists {
                 state.mixer.add(&playlist);
@@ -100,6 +100,7 @@ impl Player {
                 send_event(
                     &mut state.senders,
                     AddPlaylist(playlist.name.to_string(), playlist.len),
+                    true
                 );
             }
         })
@@ -119,7 +120,7 @@ impl Player {
 
                     if next.is_none() {
                         state.metadata = None;
-                        send_event(&mut state.senders, Metadata(None));
+                        send_event(&mut state.senders, Metadata(None), true);
                         state.buffer.clear();
                     }
                     next
@@ -168,7 +169,7 @@ impl Player {
 
     async fn send_metadata(&self, song_id: &str, metadata: VorbisCommentData) {
         self.use_state(|mut state| {
-            send_event(&mut state.senders, Metadata(Some((song_id.to_string(), metadata.clone()))));
+            send_event(&mut state.senders, Metadata(Some((song_id.to_string(), metadata.clone()))), true);
 
             state.metadata = Some((song_id.to_string(), metadata));
         })
@@ -181,7 +182,7 @@ impl Player {
         self.use_state_when(
             |state| !state.is_paused && state.senders.len() > 0,
             |mut state| {
-                send_event(&mut state.senders, OpusData(song_id.to_string(), frame.clone()));
+                send_event(&mut state.senders, OpusData(song_id.to_string(), frame.clone()), false);
 
                 if !state.buffer.push(song_id,frame.clone()) {
                     // Immediately send the next frame if the buffer isn't full
@@ -199,7 +200,7 @@ impl Player {
         let mut interval = interval(Duration::from_secs(1));
         loop {
             self.use_state(|mut state| {
-                send_event(&mut state.senders, HeartBeat);
+                send_event(&mut state.senders, HeartBeat, true);
             })
             .await;
             interval.next().await.unwrap();
@@ -210,7 +211,7 @@ impl Player {
         self.use_state(|mut state| {
             if state.is_paused != paused {
                 state.is_paused = paused;
-                send_event(&mut state.senders, PlayPause(paused));
+                send_event(&mut state.senders, PlayPause(paused), true);
                 if paused {
                     log::info!("Paused");
                 } else {
@@ -236,7 +237,7 @@ impl Player {
                         state.mixer.disable(&playlist);
                         log::info!("Playlist {} unselected", index);
                     }
-                    send_event(&mut state.senders, SelectPlaylist(index, update));
+                    send_event(&mut state.senders, SelectPlaylist(index, update), true);
                 }
             }
         })
@@ -246,15 +247,23 @@ impl Player {
     pub async fn show_potter_name(&self, show: bool) {
         self.use_state(|mut state| {
             state.show_potter_name = show;
-            send_event(&mut state.senders, ShowPotterName(show));
+            send_event(&mut state.senders, ShowPotterName(show), true);
         }).await;
     }
 
-    pub async fn observe(&self) -> Receiver<PlayerEvent> {
+    pub async fn observe(&self, is_spectator: bool) -> Receiver<PlayerEvent> {
         self.use_state(|mut state| {
             let (sender, receiver) = bounded(1024);
             let mut events = vec![];
-            let listeners = state.senders.len() + 1;
+
+            let mut listeners = state.senders
+                .iter()
+                .filter(|(_, is_spectator)| !*is_spectator)
+                .count();
+
+            if !is_spectator {
+                listeners += 1;
+            }
 
             if listeners == 1 && state.is_paused {
                 state.is_paused = false;
@@ -273,9 +282,11 @@ impl Player {
             events.push(Metadata(state.metadata.clone()));
             events.push(ShowPotterName(state.show_potter_name));
 
-            for frame in state.buffer.frames.iter() {
-                let (song_id, frame) = frame.clone();
-                events.push(OpusData(song_id, frame))
+            if !is_spectator {
+                for frame in state.buffer.frames.iter() {
+                    let (song_id, frame) = frame.clone();
+                    events.push(OpusData(song_id, frame))
+                }
             }
 
             events.push(Ready);
@@ -286,8 +297,8 @@ impl Player {
             }
 
             // Send number of listeners to everyone else
-            state.senders.push(sender);
-            send_event(&mut state.senders, Listeners(listeners));
+            state.senders.push((sender, is_spectator));
+            send_event(&mut state.senders, Listeners(listeners), true);
 
             receiver
         })
@@ -357,16 +368,26 @@ impl FrameBuffer {
     }
 }
 
-fn send_event(senders: &mut Vec<Sender<PlayerEvent>>, event: PlayerEvent) {
+fn send_event(senders: &mut Vec<(Sender<PlayerEvent>, bool)>, event: PlayerEvent, send_to_spectators: bool) {
     let len_before = senders.len();
 
-    senders.retain(|sender|
-        // Remove sender if the event can't be sent
-        sender.try_send(event.clone()).is_ok());
+    senders.retain(|(sender, is_spectator)| {
+        if *is_spectator && !send_to_spectators {
+            true
+        } else {
+            // Remove sender if the event can't be sent
+            sender.try_send(event.clone()).is_ok()
+        }
+    });
 
     let len_after = senders.len();
 
     if len_after < len_before {
-        send_event(senders, PlayerEvent::Listeners(len_after));
+        let listeners = senders
+            .iter()
+            .filter(|(_, is_spectator)| !*is_spectator)
+            .count();
+
+        send_event(senders, PlayerEvent::Listeners(listeners), true);
     }
 }

@@ -9,7 +9,7 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [imageUrl, setImageUrl] = useState("");
 
-  const [comment] = useModel();
+  const [playlists, comment, showPotterName] = useModel();
 
   return (
     <div className="app-root">
@@ -30,12 +30,23 @@ function App() {
       <div className="app-container">
         {sidebarOpen && (
           <div className="sidebar">
+            {Object.entries(playlists).map(([key, playlist]) => (
+              <h4>{key}</h4>
+            ))}
+
             {/*<DropdownMenuDemo/>*/}
             {/*<SliderDemo/>*/}
           </div>
         )}
         <div className="main-content">
-          <AlbumArt comment={comment} className={"album-art"}/>
+          <div>
+            <AlbumArt comment={comment} className={"album-art"} />
+            <h2>{`${comment?.artist ?? "Unknown artist"} - ${comment?.title ?? "Unknown title"}`}</h2>
+            <h4>
+              <span>{comment?.album ?? "Unknown album"}</span>
+              {showPotterName && <span>{` (${comment?.potter})`}</span>}
+            </h4>
+          </div>
         </div>
       </div>
     </div>

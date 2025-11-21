@@ -10,26 +10,24 @@
     height: 60px;
 
     display: grid;
-    grid-template-columns: 60px 1fr 60px; /* left | center | right */
+    grid-template-columns: 60px 1fr 60px;
     align-items: center;
 
     background-color: #282c34;
     border-radius: 8px;
 }
 
-/* Center text container */
 .app-bar-title {
     display: flex;
-    justify-content: center;  /* centers horizontally */
-    align-items: center;      /* centers vertically */
+    justify-content: center;
+    align-items: center;
 }
 
 .app-bar-title h1 {
-    margin: 0;        /* removes browser default margins */
-    line-height: 1;   /* optional — keeps height tight */
+    margin: 0;
+    line-height: 1;
 }
 
-/* Left + right sections (fixed width) */
 .app-bar-section {
     display: flex;
     justify-content: center;
@@ -45,9 +43,9 @@
 
 .sidebar {
     background-color: #282c34;
-    width: 40vw; /* 15% of viewport width */
-    min-width: 180px; /* optional minimum */
-    max-width: 300px; /* optional maximum */
+    width: 40vw;
+    min-width: 180px;
+    max-width: 300px;
 
     border-radius: 8px;
     display: flex;
@@ -57,12 +55,18 @@
 
 .main-content {
     flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 2rem;
 }
 
 .album-art {
     border-radius: 8px;
+    width: 300px;
+    height: 300px;
 }
 
 .tutter-blue {
-    color: #65abc1; /* Tomato, for example */
+    color: #65abc1;
 }

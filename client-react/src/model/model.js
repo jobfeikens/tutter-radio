@@ -6,22 +6,28 @@ import { init_player } from "./player.js";
 const player = await init_player();
 
 export function useModel() {
+  const [playlists, setPlaylists] = useState({});
   const [comment, setComment] = useState();
+  const [showPotterName, setShowPotterName] = useState(false);
 
-  const [subscription] = useState()
+  const [subscription] = useState();
 
   useEffect(() => {
     const subscription = connect(
       "ws://localhost:8443",
       new Subject(),
     ).subscribe({
-      next: (visitable) =>
-      {
+      next: (visitable) => {
         visitable({
           onPlayPause(isPaused) {},
           onListeners(count) {},
           onClearPlaylists() {},
-          onAddPlaylist(name, length) {},
+          onAddPlaylist(name, length) {
+            setPlaylists((playlists) => ({
+              ...playlists,
+              [name]: { length, selected: true },
+            }));
+          },
           onSelectPlaylist(index, selected) {},
           onComment(songId, comment) {
             setComment(comment);
@@ -30,24 +36,19 @@ export function useModel() {
             console.info("READY!!");
           },
           onData(songId, data) {
-
-            player.playFrame(data, songId).then(() => {
-
-            });
+            player.playFrame(data, songId).then(() => {});
           },
-          onShowPotterName(show) {},
-        })
+          onShowPotterName: setShowPotterName,
+        });
       },
       error: (error) => {
         console.error(error);
       },
-      complete: () => {
-
-      },
+      complete: () => {},
     });
 
     return () => subscription.unsubscribe();
-  }, [])
+  }, []);
 
-  return [comment];
+  return [playlists, comment, showPotterName];
 }

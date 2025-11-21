@@ -32,6 +32,7 @@ impl LocalSource {
 
         let mut directories = fs::read_dir(&self.path).await?;
         while let Some(directory) = directories.try_next().await? {
+
             let mut songs = Vec::new();
 
             let mut files = fs::read_dir(directory.path()).await?;

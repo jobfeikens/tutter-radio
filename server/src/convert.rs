@@ -1,4 +1,4 @@
-use crate::generated::message as pb;
+use crate::message as pb;
 use crate::PlayerEvent;
 
 pub fn convert_event(event: PlayerEvent) -> pb::ClientBound {

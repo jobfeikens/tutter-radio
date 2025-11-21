@@ -1,7 +1,9 @@
-use std::collections::HashMap;
-use rand::seq::SliceRandom;
-use rand::thread_rng;
 use crate::Playlist;
+use rand::distr::weighted::WeightedIndex;
+use rand::distr::Distribution;
+use rand::seq::SliceRandom;
+use rand::{rng};
+use std::collections::HashMap;
 
 struct MixedPlaylist {
     index: usize,
@@ -17,32 +19,33 @@ impl MixedPlaylist {
 
 pub struct Mixer {
     playlists: HashMap<String, MixedPlaylist>,
-    playlist_keys: Vec<String>,  // Used to get a random playlist
 }
 
 impl Mixer {
     pub fn new() -> Self {
         Mixer {
             playlists: HashMap::new(),
-            playlist_keys: Vec::new(),
         }
     }
 
     pub fn has_next(&self) -> bool {
-        self.playlists
-            .values()
-            .any(|playlist| playlist.enabled && !playlist.random_order.is_empty())
+        self.playlists.values().any(|playlist| {
+            playlist.enabled && !playlist.random_order.is_empty()
+        })
     }
 
     pub fn add(&mut self, playlist: &Playlist) {
         let mut random_order: Vec<usize> = (0..playlist.len).collect();
-        random_order.shuffle(&mut thread_rng());
+        random_order.shuffle(&mut rng());
 
         self.playlists.insert(
             playlist.name.clone(),
-            MixedPlaylist { index: 0, random_order, enabled: true });
-
-        self.playlist_keys.push(playlist.name.clone());
+            MixedPlaylist {
+                index: 0,
+                random_order,
+                enabled: true,
+            },
+        );
     }
 
     pub fn enable(&mut self, playlist: &Playlist) {
@@ -58,27 +61,27 @@ impl Mixer {
     }
 
     pub fn next(&mut self) -> Option<(String, usize)> {
-        if !self.has_next() {
-            return None
-        }
-        self.playlist_keys.shuffle(&mut thread_rng());  // Select a random playlist
+        let mut entries = self.playlists.iter_mut().collect::<Vec<_>>();
 
-        for key in &self.playlist_keys {
-
-            if let Some(playlist) = self.playlists.get_mut(key) {
-
-                if !playlist.enabled || playlist.len() == 0 {
-                    continue
-                }
-                if playlist.index + 1 >= playlist.len() {
-                    playlist.index = 0;
-                    playlist.random_order.shuffle(&mut thread_rng())
-                } else {
-                    playlist.index += 1;
-                }
-                return Some((key.to_string(), playlist.random_order[playlist.index]))
+        let dist = WeightedIndex::new(entries.iter().map(|(_, playlist)| {
+            if playlist.enabled {
+                playlist.len()
+            } else {
+                0
             }
+        }))
+        .ok()?;
+
+        let (key, playlist) = &mut entries[dist.sample(&mut rng())];
+        let song = playlist.random_order[playlist.index];
+
+        playlist.index += 1;
+
+        // Check if last song is being played
+        if playlist.index >= playlist.len() {
+            playlist.index = 0;
         }
-        return None
+
+        Some((key.clone(), song))
     }
 }

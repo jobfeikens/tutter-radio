@@ -1,40 +1,34 @@
+use futures::{SinkExt, StreamExt};
 use std::env;
 use std::sync::{Arc, Mutex};
-use async_std::fs::File;
-use futures::{AsyncReadExt, SinkExt, StreamExt};
 mod common;
-mod local;
-mod player;
-mod util;
 mod convert;
-mod generated;
+mod local;
 mod mixer;
+mod player;
 mod report;
+mod util;
 
-use crate::common::{Playlist};
+use crate::common::Playlist;
 use crate::local::source::LocalSource;
 use crate::player::{Player, PlayerEvent};
 use futures::try_join;
 
-use log::LevelFilter;
-use simple_logger::SimpleLogger;
-use futures::stream::{SplitSink, SplitStream};
-use generated::message as pb;
-use protobuf::Message as PbMessage;
-use tokio::net::{TcpListener, TcpStream};
 use clap::Parser;
-use native_tls::Identity;
-use tokio_native_tls::{TlsAcceptor, TlsStream};
+use futures::stream::{SplitSink, SplitStream};
+use log::LevelFilter;
+use protobuf::Message as PbMessage;
+use simple_logger::SimpleLogger;
+use tokio::net::{TcpListener, TcpStream};
 
+include!(concat!(env!("OUT_DIR"), "/generated/mod.rs"));
 
-use tokio_tungstenite::{
-    tungstenite,
-    tungstenite::{
-        Message::Binary
-    },
-    WebSocketStream
+use tokio_tungstenite::tungstenite::handshake::server::{
+    ErrorResponse, Request, Response,
 };
-use tokio_tungstenite::tungstenite::handshake::server::{ErrorResponse, Request, Response};
+use tokio_tungstenite::{
+    tungstenite, tungstenite::Message::Binary, WebSocketStream,
+};
 
 use crate::convert::convert_event;
 use crate::report::report_song;
@@ -43,29 +37,18 @@ use crate::report::report_song;
 async fn main() -> anyhow::Result<()> {
     let args = Args::parse();
 
-    let addr = args.address
-        .unwrap_or_else(|| "0.0.0.0:8443".to_string());
+    let addr = args.address.unwrap_or_else(|| "0.0.0.0:8443".to_string());
 
-    let playlist_path = args.playlist_path
-        .unwrap_or_else(|| env::current_dir().unwrap().to_str().unwrap().to_string());
-
-    let certificate_path = args.certificate_path
-        .unwrap_or_else(|| "identity.p12".to_string());
+    let playlist_path = args.playlist_path.unwrap_or_else(|| {
+        env::current_dir().unwrap().to_str().unwrap().to_string()
+    });
 
     SimpleLogger::new().with_level(LevelFilter::Info).init()?;
-
-    let mut file = File::open(certificate_path).await?;
-    let mut identity = vec![];
-    file.read_to_end(&mut identity).await?;
-    let cert = Identity::from_pkcs12(&identity, "")?;
-
-    let tls_acceptor = TlsAcceptor::from(native_tls::TlsAcceptor::builder(cert).build()?);
 
     let player = Player::new();
 
     let mut server = Server {
         listener: TcpListener::bind(&addr).await?,
-        tls_acceptor,
         player: player.clone(),
     };
 
@@ -74,10 +57,7 @@ async fn main() -> anyhow::Result<()> {
 
     log::info!("Started successfully!");
 
-    try_join!(
-        server.run(),
-        player.run(&mut source),
-    )?;
+    try_join!(server.run(), player.run(&mut source),)?;
     unreachable!()
 }
 
@@ -88,14 +68,10 @@ struct Args {
 
     #[clap(short, long)]
     playlist_path: Option<String>,
-
-    #[clap(short, long)]
-    certificate_path: Option<String>
 }
 
 struct Server {
     listener: TcpListener,
-    tls_acceptor: TlsAcceptor,
     player: Player,
 }
 
@@ -109,14 +85,12 @@ impl Server {
             connection_counter += 1;
 
             log::info!("New connection {}: {}", connection_id, remote_addr);
-
-            let tls_acceptor = self.tls_acceptor.clone();
             let player = self.player.clone();
 
             tokio::spawn(async move {
-                let stream = tls_acceptor.accept(socket).await.expect("accept error");
-
-                accept_connection(connection_id, stream, player).await.expect("tungstenite accept error");
+                accept_connection(connection_id, socket, player)
+                    .await
+                    .expect("tungstenite accept error");
             });
         }
     }
@@ -128,8 +102,15 @@ struct RequestInterceptor {
 }
 
 impl tungstenite::handshake::server::Callback for RequestInterceptor {
-    fn on_request(self, request: &Request, response: Response) -> Result<Response, ErrorResponse> {
-        println!("CONTAINS {}", request.uri().to_string().contains("spectator=true"));
+    fn on_request(
+        self,
+        request: &Request,
+        response: Response,
+    ) -> Result<Response, ErrorResponse> {
+        println!(
+            "CONTAINS {}",
+            request.uri().to_string().contains("spectator=true")
+        );
         if request.uri().to_string().contains("spectator=true") {
             *self.is_spectator.lock().unwrap() = true;
         }
@@ -140,7 +121,7 @@ impl tungstenite::handshake::server::Callback for RequestInterceptor {
 impl RequestInterceptor {
     fn new() -> Self {
         RequestInterceptor {
-            is_spectator: Arc::new(Mutex::new(false))
+            is_spectator: Arc::new(Mutex::new(false)),
         }
     }
     fn is_spectator(&self) -> bool {
@@ -148,16 +129,31 @@ impl RequestInterceptor {
     }
 }
 
-async fn accept_connection(connection_id: usize, stream: TlsStream<TcpStream>, player: Player) -> anyhow::Result<()> {
+async fn accept_connection(
+    connection_id: usize,
+    stream: TcpStream,
+    player: Player,
+) -> anyhow::Result<()> {
     let header_interceptor = RequestInterceptor::new();
 
-    match tokio_tungstenite::accept_hdr_async(stream, header_interceptor.clone()).await {
+    match tokio_tungstenite::accept_hdr_async(
+        stream,
+        header_interceptor.clone(),
+    )
+    .await
+    {
         Ok(stream) => {
-            println!("is spectatotr: {}", header_interceptor.is_spectator());
+            println!("is spectator: {}", header_interceptor.is_spectator());
 
             // Run connection in separate task
             tokio::spawn(async move {
-                run_connection(connection_id, stream, player, header_interceptor.is_spectator()).await;
+                run_connection(
+                    connection_id,
+                    stream,
+                    player,
+                    header_interceptor.is_spectator(),
+                )
+                .await;
             });
         }
         Err(err) => {
@@ -169,7 +165,7 @@ async fn accept_connection(connection_id: usize, stream: TlsStream<TcpStream>, p
 
 async fn run_connection(
     connection_id: usize,
-    stream: WebSocketStream<TlsStream<TcpStream>>,
+    stream: WebSocketStream<TcpStream>,
     player: Player,
     is_spectator: bool,
 ) {
@@ -183,7 +179,7 @@ async fn run_connection(
 }
 
 async fn send_connection(
-    mut stream: SplitSink<WebSocketStream<TlsStream<TcpStream>>, tungstenite::Message>,
+    mut stream: SplitSink<WebSocketStream<TcpStream>, tungstenite::Message>,
     player: Player,
     is_spectator: bool,
 ) -> anyhow::Result<()> {
@@ -192,35 +188,37 @@ async fn send_connection(
     loop {
         let event = convert_event(receiver.recv().await?);
         let bytes = event.write_to_bytes()?;
-        stream.send(Binary(bytes)).await?;
+        stream.send(Binary(bytes.into())).await?;
     }
 }
 
 async fn receive_connection(
-    mut stream: SplitStream<WebSocketStream<TlsStream<TcpStream>>>,
+    mut stream: SplitStream<WebSocketStream<TcpStream>>,
     player: Player,
 ) -> anyhow::Result<()> {
     while let Some(data) = stream.next().await {
         let bytes = data?;
 
-        let message = pb::ServerBound::parse_from_bytes(&bytes.into_data())?;
-
+        let message =
+            message::ServerBound::parse_from_bytes(&bytes.into_data())?;
 
         if message.has_play_pause() {
             player.play_pause(message.play_pause().is_paused).await;
-
         } else if message.has_select_playlist() {
             let select = message.select_playlist();
 
-            player.select_playlist(select.index as usize, select.selected).await;
-
+            player
+                .select_playlist(select.index as usize, select.selected)
+                .await;
         } else if message.has_show_potter_name() {
-            player.show_potter_name(message.show_potter_name().show).await;
-
+            player
+                .show_potter_name(message.show_potter_name().show)
+                .await;
         } else if message.has_report_song() {
             let report = message.report_song();
 
-            report_song(&report.artist, &report.title, &report.explanation).await?;
+            report_song(&report.artist, &report.title, &report.explanation)
+                .await?;
         }
     }
     Ok(())

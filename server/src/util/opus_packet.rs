@@ -33,7 +33,6 @@ pub struct VorbisCommentData {
 #[derive(Clone, Debug)]
 pub struct OpusFrame {
     pub duration: Duration, // microseconds, from 2.5ms to 120ms
-    pub is_stereo: bool,
     pub data: Vec<u8>,
 }
 
@@ -71,8 +70,6 @@ fn decode_opus(buffer: Vec<u8>) -> OpusFrame {
         _ => unreachable!()
     };
 
-    let is_stereo = ((toc_byte >> 2) & 1) > 0;
-
     let code = toc_byte & 0b11;
 
     match code {
@@ -86,7 +83,6 @@ fn decode_opus(buffer: Vec<u8>) -> OpusFrame {
 
     OpusFrame {
         duration: Duration::from_micros(frame_size as u64),
-        is_stereo,
         data: buffer
     }
 }

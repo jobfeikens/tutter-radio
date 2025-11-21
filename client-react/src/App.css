@@ -1,0 +1,68 @@
+.app-root {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: #1a1c1e;
+}
+
+.app-bar {
+    flex-shrink: 0;
+    height: 60px;
+
+    display: grid;
+    grid-template-columns: 60px 1fr 60px; /* left | center | right */
+    align-items: center;
+
+    background-color: #282c34;
+    border-radius: 8px;
+}
+
+/* Center text container */
+.app-bar-title {
+    display: flex;
+    justify-content: center;  /* centers horizontally */
+    align-items: center;      /* centers vertically */
+}
+
+.app-bar-title h1 {
+    margin: 0;        /* removes browser default margins */
+    line-height: 1;   /* optional — keeps height tight */
+}
+
+/* Left + right sections (fixed width) */
+.app-bar-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.app-container {
+    display: flex;
+    flex: 1;
+    padding-top: 1rem;
+    min-height: 0;
+}
+
+.sidebar {
+    background-color: #282c34;
+    width: 40vw; /* 15% of viewport width */
+    min-width: 180px; /* optional minimum */
+    max-width: 300px; /* optional maximum */
+
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 2rem;
+}
+
+.main-content {
+    flex: 1;
+}
+
+.album-art {
+    border-radius: 8px;
+}
+
+.tutter-blue {
+    color: #65abc1; /* Tomato, for example */
+}

@@ -24,14 +24,19 @@ export function VolumeSlider(props) {
   const { volume, onChange, ...inputProps } = props;
   const [volumeBeforeMute, setVolumeBeforeMute] = useState(undefined);
 
+  const changeValue = (value) => {
+    // Input slider doesn't go to 0 on small step values
+    onChange(value < 0.0001 ? 0 : value);
+  }
+
   const toggle = () => {
     if (volume === 0.0) {
       // Unmute
-      onChange(volumeBeforeMute ?? 0.5);
+      changeValue(volumeBeforeMute ?? 0.5);
     } else {
       // Mute
       setVolumeBeforeMute(volume);
-      onChange(0.0);
+      changeValue(0.0);
     }
   };
 
@@ -48,7 +53,7 @@ export function VolumeSlider(props) {
         type="range"
         {...inputProps}
         value={volume}
-        onChange={(event) => onChange(event.target.value)}
+        onChange={(event) => changeValue(event.target.value)}
       />
     </div>
   );

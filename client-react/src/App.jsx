@@ -1,6 +1,6 @@
 import "./App.css";
 import { IconButton, ListItem, Slider } from "./components";
-import { HamburgerMenuIcon } from "@radix-ui/react-icons";
+import { HamburgerMenuIcon, PersonIcon } from "@radix-ui/react-icons";
 import { useState } from "react";
 import { useModel } from "./model/model.js";
 import { AlbumArt } from "./AlbumArt.jsx";
@@ -43,11 +43,9 @@ function App() {
               <Slider
                 min={0.0}
                 max={1.0}
-                step={0.1}
+                step={0.01}
                 value={volume}
                 onChange={(event) => {
-
-                  console.warn("SETVOLUME");
                   setVolume(event.target.value);
                 }}
               />
@@ -91,7 +89,7 @@ function App() {
               <span>{comment?.album ?? "Unknown album"}</span>
               {showPotterName && <span>{` (${comment?.potter})`}</span>}
             </h4>
-            <h4>{listeners}</h4>
+            <h4><PersonIcon /> {listeners}</h4>
           </div>
         </div>
       </div>

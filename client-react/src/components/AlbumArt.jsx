@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { decodeMetadataBlockPicture } from "./util.js";
+import { decodeMetadataBlockPicture } from "../util.js";
 import "./AlbumArt.css";
 
 export function AlbumArt(props) {

@@ -1,23 +1,16 @@
-import "./App.css";
-import { IconButton, ListItem, Slider } from "./components";
+import "./HomePage.css";
+import { IconButton, ListItem, Slider, useModelContext } from "../components";
 import { HamburgerMenuIcon, PersonIcon } from "@radix-ui/react-icons";
 import { useState } from "react";
-import { useModel } from "./model/model.js";
-import { AlbumArt } from "./AlbumArt.jsx";
-import { Checkbox } from "./components/Checkbox.jsx";
+import { useModel } from "../model/model.js";
+import { AlbumArt } from "../components/AlbumArt.jsx";
+import { Checkbox } from "../components/Checkbox.jsx";
 
-function App() {
+function HomePage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [imageUrl, setImageUrl] = useState("");
 
-  const [
-    listeners,
-    playlists,
-    comment,
-    [showPotterName, setShowPotterName],
-    selectPlaylist,
-    [volume, setVolume],
-  ] = useModel();
+  const model = useModelContext();
 
   return (
     <div className="app-root">
@@ -44,13 +37,13 @@ function App() {
                 min={0.0}
                 max={1.0}
                 step={0.01}
-                value={volume}
+                value={model.volume}
                 onChange={(event) => {
                   setVolume(event.target.value);
                 }}
               />
               <h2>Afspeellijsten</h2>
-              {Object.entries(playlists)
+              {Object.entries(model.playlists)
                 .sort(([key1, _], [key2, __]) => key1.localeCompare(key2))
                 .map(([key, playlist]) => (
                   <ListItem
@@ -60,7 +53,7 @@ function App() {
                       <Checkbox
                         checked={playlist.selected}
                         onMouseDown={() => {
-                          selectPlaylist(key, !playlist.selected);
+                          model.selectPlaylist(key, !playlist.selected);
                         }}
                       />
                     }
@@ -70,9 +63,9 @@ function App() {
               <ListItem
                 leading={
                   <Checkbox
-                    checked={showPotterName}
+                    checked={model.showPotterName}
                     onMouseDown={() => {
-                      setShowPotterName(!showPotterName);
+                      model.setShowPotterName(!model.showPotterName);
                     }}
                   />
                 }
@@ -83,13 +76,15 @@ function App() {
         )}
         <div className="main-content">
           <div>
-            <AlbumArt comment={comment} className={"album-art"} />
-            <h2>{`${comment?.artist ?? "Unknown artist"} - ${comment?.title ?? "Unknown title"}`}</h2>
+            <AlbumArt comment={model.comment} className={"album-art"} />
+            <h2>{`${model.comment?.artist ?? "Unknown artist"} - ${model.comment?.title ?? "Unknown title"}`}</h2>
             <h4>
-              <span>{comment?.album ?? "Unknown album"}</span>
-              {showPotterName && <span>{` (${comment?.potter})`}</span>}
+              <span>{model.comment?.album ?? "Unknown album"}</span>
+              {model.showPotterName && model.comment?.potter && (
+                <span>{` (${model.comment.potter})`}</span>
+              )}
             </h4>
-            <h4><PersonIcon /> {listeners}</h4>
+            <h4><PersonIcon /> {model.listeners}</h4>
           </div>
         </div>
       </div>
@@ -97,4 +92,4 @@ function App() {
   );
 }
 
-export default App;
+export default HomePage;

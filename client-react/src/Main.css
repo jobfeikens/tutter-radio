@@ -22,7 +22,7 @@
 body {
   margin: 0;
   padding: 0;
-  background-color: #242424; /* matches your :root background */
+  background-color: #242424;
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   overflow: hidden;
 }

@@ -9,6 +9,7 @@ export function useModel() {
   const [listeners, setListeners] = useState(0);
   const [playlists, setPlaylists] = useState({});
   const [comment, setComment] = useState();
+  const [ready, setReady] = useState(false);
   const [showPotterName, _setShowPotterName] = useState(false);
 
   const [volume, _setVolume] = useState(1.0);
@@ -31,7 +32,7 @@ export function useModel() {
   const setVolume = (volume) => {
     player.setVolume(volume);
     _setVolume(volume);
-  }
+  };
 
   useEffect(() => {
     const subscription = connect("ws://localhost:8443", outbound).subscribe({
@@ -62,7 +63,7 @@ export function useModel() {
             setComment(comment);
           },
           onReady() {
-            console.info("READY!!");
+            setReady(true);
           },
           onData(songId, data) {
             player.playFrame(data, songId).then(() => {});
@@ -79,12 +80,15 @@ export function useModel() {
     return () => subscription.unsubscribe();
   }, []);
 
-  return [
+  return {
     listeners,
     playlists,
     comment,
-    [showPotterName, setShowPotterName],
+    showPotterName,
+    volume,
+    ready,
+    setShowPotterName,
     selectPlaylist,
-    [volume, setVolume],
-  ];
+    setVolume,
+  };
 }

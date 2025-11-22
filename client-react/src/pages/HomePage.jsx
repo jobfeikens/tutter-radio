@@ -1,14 +1,12 @@
 import "./HomePage.css";
-import { IconButton, ListItem, Slider, useModelContext } from "../components";
+import { IconButton, ListItem, VolumeSlider, useModelContext } from "../components";
 import { HamburgerMenuIcon, PersonIcon } from "@radix-ui/react-icons";
 import { useState } from "react";
-import { useModel } from "../model/model.js";
 import { AlbumArt } from "../components/AlbumArt.jsx";
 import { Checkbox } from "../components/Checkbox.jsx";
 
 function HomePage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [imageUrl, setImageUrl] = useState("");
 
   const model = useModelContext();
 
@@ -33,13 +31,13 @@ function HomePage() {
           <div className="sidebar">
             <div className="sidebar-content">
               <h2>Volume</h2>
-              <Slider
+              <VolumeSlider
                 min={0.0}
                 max={1.0}
-                step={0.01}
-                value={model.volume}
-                onChange={(event) => {
-                  setVolume(event.target.value);
+                step={Number.MIN_VALUE}
+                volume={model.volume}
+                onChange={(volume) => {
+                  model.setVolume(volume);
                 }}
               />
               <h2>Afspeellijsten</h2>

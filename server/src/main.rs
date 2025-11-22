@@ -107,10 +107,6 @@ impl tungstenite::handshake::server::Callback for RequestInterceptor {
         request: &Request,
         response: Response,
     ) -> Result<Response, ErrorResponse> {
-        println!(
-            "CONTAINS {}",
-            request.uri().to_string().contains("spectator=true")
-        );
         if request.uri().to_string().contains("spectator=true") {
             *self.is_spectator.lock().unwrap() = true;
         }
@@ -143,7 +139,6 @@ async fn accept_connection(
     .await
     {
         Ok(stream) => {
-            println!("is spectator: {}", header_interceptor.is_spectator());
 
             // Run connection in separate task
             tokio::spawn(async move {
@@ -208,8 +203,9 @@ async fn receive_connection(
             let select = message.select_playlist();
 
             player
-                .select_playlist(select.index as usize, select.selected)
+                .select_playlist(&select.playlist, select.selected)
                 .await;
+
         } else if message.has_show_potter_name() {
             player
                 .show_potter_name(message.show_potter_name().show)

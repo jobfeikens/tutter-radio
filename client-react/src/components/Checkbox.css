@@ -1,0 +1,47 @@
+.icon-checkbox {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+}
+
+.icon-checkbox input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.icon-checkbox .checkmark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    transition: background-color 0.1s ease, transform 0.1s ease;
+}
+
+.icon-checkbox:hover .checkmark {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.icon-checkbox svg {
+    width: 20px;
+    height: 20px;
+    color: transparent;
+    transition: color 0.1s ease;
+}
+
+/* Checked State */
+.icon-checkbox input:checked + .checkmark {
+    background-color: #65abc1;
+}
+
+.icon-checkbox input:checked + .checkmark svg {
+    color: white;
+}

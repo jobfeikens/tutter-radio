@@ -16,19 +16,19 @@ export function connect(url, outbound) {
     const outboundSubscription = outbound.subscribe({
       next: (visitable) => {
         visitable({
-          playPause: (isPaused) =>
+          onPlayPause: (isPaused) =>
             send((message) => (message.playPause = { isPaused: isPaused })),
-          selectPlaylist: (index, selected) =>
+          onSelectPlaylist: (playlist, selected) =>
             send(
               (message) =>
                 (message.selectPlaylist = {
-                  index,
+                  playlist,
                   selected,
                 }),
             ),
-          showPotterName: (show) =>
+          onShowPotterName: (show) =>
             send((message) => (message.showPotterName = { show })),
-          reportSong: (artist, title, explanation) =>
+          onReportSong: (artist, title, explanation) =>
             send(
               (message) =>
                 (message.reportSong = {
@@ -73,7 +73,7 @@ export function connect(url, outbound) {
       } else if (message.selectPlaylist) {
         subscriber.next((visitor) =>
           visitor.onSelectPlaylist(
-            message.selectPlaylist.index,
+            message.selectPlaylist.playlist,
             message.selectPlaylist.selected,
           ),
         );

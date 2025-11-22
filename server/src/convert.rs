@@ -27,9 +27,9 @@ pub fn convert_event(event: PlayerEvent) -> pb::ClientBound {
             add_playlist.length = length as u64;
             message.set_add_playlist(add_playlist);
         }
-        PlayerEvent::SelectPlaylist(index, selected) => {
+        PlayerEvent::SelectPlaylist(playlist, selected) => {
             let mut select_playlist = pb::SelectPlaylist::new();
-            select_playlist.index = index as u64;
+            select_playlist.playlist = playlist;
             select_playlist.selected = selected;
             message.set_select_playlist(select_playlist);
         }

@@ -29,11 +29,11 @@ export class Player {
     return this.currentSong.pipe(distinct());
   }
 
-  async pauseResume(paused) {
+  pauseResume(paused) {
     if (paused) {
-      await this.audioContext.suspend();
+      this.audioContext.suspend();
     } else {
-      await this.audioContext.resume();
+      this.audioContext.resume();
     }
   }
 

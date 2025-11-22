@@ -1,0 +1,20 @@
+.list-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.list-item-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: left;
+}
+
+.list-item-text * {
+    margin: 0;
+}
+
+.list-item-text h5 {
+    color: #999999;
+}

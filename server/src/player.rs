@@ -1,6 +1,8 @@
-use crate::common::{MusicSource};
+use crate::common::MusicSource;
 use crate::mixer::Mixer;
-use crate::util::opus_packet::{read_packet, OggData, OpusFrame, VorbisCommentData};
+use crate::util::opus_packet::{
+    read_packet, OggData, OpusFrame, VorbisCommentData,
+};
 use crate::Playlist;
 use anyhow::Result;
 use async_std::channel::{bounded, Receiver, Sender};
@@ -16,7 +18,7 @@ use tokio::io::AsyncRead;
 use tokio::time::{sleep_until, Instant};
 use PlayerEvent::*;
 
-// Buffer holds n or less seconds worth of opus frames
+// Buffer holds n or fewer seconds worth of opus frames
 const BUFFER_SIZE: Duration = Duration::from_secs(10);
 
 #[derive(Clone, Debug)]
@@ -26,8 +28,8 @@ pub enum PlayerEvent {
     Listeners(usize),
 
     ClearPlaylists(),
-    AddPlaylist(String, usize),  // name length
-    SelectPlaylist(usize, bool), // index, selected (selected by default)
+    AddPlaylist(String, usize),   // name length
+    SelectPlaylist(String, bool), // index, selected (selected by default)
 
     Metadata(Option<(String, VorbisCommentData)>),
 
@@ -39,7 +41,7 @@ pub enum PlayerEvent {
 
 pub struct State {
     is_paused: bool,
-    senders: Vec<(Sender<PlayerEvent>, bool)>,  // bool = is_spectator
+    senders: Vec<(Sender<PlayerEvent>, bool)>, // bool = is_spectator
     metadata: Option<(String, VorbisCommentData)>,
     playlists: Vec<(Playlist, bool)>,
     show_potter_name: bool,
@@ -69,7 +71,7 @@ pub struct Player {
 
 struct LoadedSong {
     song_id: String,
-    reader: PacketReader<Box<dyn AsyncRead+Unpin>>,
+    reader: PacketReader<Box<dyn AsyncRead + Unpin>>,
 }
 
 impl Player {
@@ -100,7 +102,7 @@ impl Player {
                 send_event(
                     &mut state.senders,
                     AddPlaylist(playlist.name.to_string(), playlist.len),
-                    true
+                    true,
                 );
             }
         })
@@ -115,23 +117,30 @@ impl Player {
 
         loop {
             if loaded_song.is_none() {
-                let mut next = self.use_state(|mut state| {
-                    let next = state.mixer.next();
+                let mut next = self
+                    .use_state(|mut state| {
+                        let next = state.mixer.next();
 
-                    if next.is_none() {
-                        state.metadata = None;
-                        send_event(&mut state.senders, Metadata(None), true);
-                        state.buffer.clear();
-                    }
-                    next
-                }).await;
+                        if next.is_none() {
+                            state.metadata = None;
+                            send_event(
+                                &mut state.senders,
+                                Metadata(None),
+                                true,
+                            );
+                            state.buffer.clear();
+                        }
+                        next
+                    })
+                    .await;
 
                 if next.is_none() {
-                    next = self.use_state_when(
-                        |state| state.mixer.has_next(),
-                        |mut state| state.mixer.next()
-                    )
-                    .await;
+                    next = self
+                        .use_state_when(
+                            |state| state.mixer.has_next(),
+                            |mut state| state.mixer.next(),
+                        )
+                        .await;
                 }
 
                 let (playlist, index) = next.unwrap();
@@ -156,10 +165,20 @@ impl Player {
                             continue;
                         }
                         OggData::VorbisComment(comment) => {
-                            self.send_metadata(&some_loaded_song.song_id,comment).await;
+                            self.send_metadata(
+                                &some_loaded_song.song_id,
+                                comment,
+                            )
+                            .await;
                         }
                         OggData::Opus(frame) => {
-                            frame_time = self.send_frame(&some_loaded_song.song_id, frame, frame_time).await;
+                            frame_time = self
+                                .send_frame(
+                                    &some_loaded_song.song_id,
+                                    frame,
+                                    frame_time,
+                                )
+                                .await;
                         }
                     }
                 }
@@ -169,22 +188,35 @@ impl Player {
 
     async fn send_metadata(&self, song_id: &str, metadata: VorbisCommentData) {
         self.use_state(|mut state| {
-            send_event(&mut state.senders, Metadata(Some((song_id.to_string(), metadata.clone()))), true);
+            send_event(
+                &mut state.senders,
+                Metadata(Some((song_id.to_string(), metadata.clone()))),
+                true,
+            );
 
             state.metadata = Some((song_id.to_string(), metadata));
         })
         .await;
     }
 
-    async fn send_frame(&self, song_id: &str, frame: OpusFrame, frame_time: Instant) -> Instant {
+    async fn send_frame(
+        &self,
+        song_id: &str,
+        frame: OpusFrame,
+        frame_time: Instant,
+    ) -> Instant {
         sleep_until(frame_time).await;
 
         self.use_state_when(
             |state| !state.is_paused && state.senders.len() > 0,
             |mut state| {
-                send_event(&mut state.senders, OpusData(song_id.to_string(), frame.clone()), false);
+                send_event(
+                    &mut state.senders,
+                    OpusData(song_id.to_string(), frame.clone()),
+                    false,
+                );
 
-                if !state.buffer.push(song_id,frame.clone()) {
+                if !state.buffer.push(song_id, frame.clone()) {
                     // Immediately send the next frame if the buffer isn't full
                     Instant::now()
                 } else {
@@ -222,9 +254,13 @@ impl Player {
         .await
     }
 
-    pub async fn select_playlist(&self, index: usize, update: bool) {
+    pub async fn select_playlist(&self, playlist: &str, update: bool) {
         self.use_state(|mut state| {
-            if let Some((playlist, selected)) = state.playlists.get_mut(index) {
+            if let Some((playlist, selected)) = state
+                .playlists
+                .iter_mut()
+                .find(|(playlist1, _)| &playlist1.name == playlist)
+            {
                 if selected != &update {
                     *selected = update;
 
@@ -232,12 +268,16 @@ impl Player {
 
                     if update {
                         state.mixer.enable(&playlist);
-                        log::info!("Playlist {} selected", index);
+                        log::info!("Playlist {} selected", playlist.name);
                     } else {
                         state.mixer.disable(&playlist);
-                        log::info!("Playlist {} unselected", index);
+                        log::info!("Playlist {} unselected", playlist.name);
                     }
-                    send_event(&mut state.senders, SelectPlaylist(index, update), true);
+                    send_event(
+                        &mut state.senders,
+                        SelectPlaylist(playlist.name, update),
+                        true,
+                    );
                 }
             }
         })
@@ -248,7 +288,8 @@ impl Player {
         self.use_state(|mut state| {
             state.show_potter_name = show;
             send_event(&mut state.senders, ShowPotterName(show), true);
-        }).await;
+        })
+        .await;
     }
 
     pub async fn observe(&self, is_spectator: bool) -> Receiver<PlayerEvent> {
@@ -256,7 +297,8 @@ impl Player {
             let (sender, receiver) = bounded(1024);
             let mut events = vec![];
 
-            let mut listeners = state.senders
+            let mut listeners = state
+                .senders
                 .iter()
                 .filter(|(_, is_spectator)| !*is_spectator)
                 .count();
@@ -272,10 +314,10 @@ impl Player {
             // Add initial player state to the channel
             events.push(PlayPause(state.is_paused));
             events.push(Listeners(listeners));
-            for (index, (playlist, selected)) in state.playlists.iter().enumerate() {
-                events.push(AddPlaylist(playlist.name.to_string(), playlist.len));
+            for (playlist, selected) in &state.playlists {
+                events.push(AddPlaylist(playlist.name.clone(), playlist.len));
                 if !selected {
-                    events.push(SelectPlaylist(index, false));
+                    events.push(SelectPlaylist(playlist.name.clone(), false));
                 }
             }
 
@@ -368,7 +410,11 @@ impl FrameBuffer {
     }
 }
 
-fn send_event(senders: &mut Vec<(Sender<PlayerEvent>, bool)>, event: PlayerEvent, send_to_spectators: bool) {
+fn send_event(
+    senders: &mut Vec<(Sender<PlayerEvent>, bool)>,
+    event: PlayerEvent,
+    send_to_spectators: bool,
+) {
     let len_before = senders.len();
 
     senders.retain(|(sender, is_spectator)| {

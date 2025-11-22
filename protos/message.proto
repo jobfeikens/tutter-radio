@@ -46,7 +46,7 @@ message AddPlaylist {
 }
 
 message SelectPlaylist {
-  uint64 index = 1;
+  string playlist = 1;
   bool selected = 2;
 }
 

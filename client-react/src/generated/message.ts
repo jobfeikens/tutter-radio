@@ -52,7 +52,7 @@ export interface AddPlaylist {
 }
 
 export interface SelectPlaylist {
-  index: number;
+  playlist: string;
   selected: boolean;
 }
 
@@ -756,13 +756,13 @@ export const AddPlaylist: MessageFns<AddPlaylist> = {
 };
 
 function createBaseSelectPlaylist(): SelectPlaylist {
-  return { index: 0, selected: false };
+  return { playlist: "", selected: false };
 }
 
 export const SelectPlaylist: MessageFns<SelectPlaylist> = {
   encode(message: SelectPlaylist, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.index !== 0) {
-      writer.uint32(8).uint64(message.index);
+    if (message.playlist !== "") {
+      writer.uint32(10).string(message.playlist);
     }
     if (message.selected !== false) {
       writer.uint32(16).bool(message.selected);
@@ -778,11 +778,11 @@ export const SelectPlaylist: MessageFns<SelectPlaylist> = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1: {
-          if (tag !== 8) {
+          if (tag !== 10) {
             break;
           }
 
-          message.index = longToNumber(reader.uint64());
+          message.playlist = reader.string();
           continue;
         }
         case 2: {
@@ -804,15 +804,15 @@ export const SelectPlaylist: MessageFns<SelectPlaylist> = {
 
   fromJSON(object: any): SelectPlaylist {
     return {
-      index: isSet(object.index) ? globalThis.Number(object.index) : 0,
+      playlist: isSet(object.playlist) ? globalThis.String(object.playlist) : "",
       selected: isSet(object.selected) ? globalThis.Boolean(object.selected) : false,
     };
   },
 
   toJSON(message: SelectPlaylist): unknown {
     const obj: any = {};
-    if (message.index !== 0) {
-      obj.index = Math.round(message.index);
+    if (message.playlist !== "") {
+      obj.playlist = message.playlist;
     }
     if (message.selected !== false) {
       obj.selected = message.selected;
@@ -825,7 +825,7 @@ export const SelectPlaylist: MessageFns<SelectPlaylist> = {
   },
   fromPartial<I extends Exact<DeepPartial<SelectPlaylist>, I>>(object: I): SelectPlaylist {
     const message = createBaseSelectPlaylist();
-    message.index = object.index ?? 0;
+    message.playlist = object.playlist ?? "";
     message.selected = object.selected ?? false;
     return message;
   },

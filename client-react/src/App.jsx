@@ -1,6 +1,6 @@
 import "./App.css";
 import { IconButton, ListItem, Slider } from "./components";
-import { HamburgerMenuIcon } from "@radix-ui/react-icons";
+import { HamburgerMenuIcon, PersonIcon } from "@radix-ui/react-icons";
 import { useState } from "react";
 import { useModel } from "./model/model.js";
 import { AlbumArt } from "./AlbumArt.jsx";
@@ -89,7 +89,7 @@ function App() {
               <span>{comment?.album ?? "Unknown album"}</span>
               {showPotterName && <span>{` (${comment?.potter})`}</span>}
             </h4>
-            <h4>{listeners}</h4>
+            <h4><PersonIcon /> {listeners}</h4>
           </div>
         </div>
       </div>

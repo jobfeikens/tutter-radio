@@ -43,11 +43,9 @@ function App() {
               <Slider
                 min={0.0}
                 max={1.0}
-                step={0.1}
+                step={0.01}
                 value={volume}
                 onChange={(event) => {
-
-                  console.warn("SETVOLUME");
                   setVolume(event.target.value);
                 }}
               />
